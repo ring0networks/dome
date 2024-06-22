@@ -24,25 +24,10 @@
 local xdp     = require("xdp")
 local mailbox = require("mailbox")
 local malware = require("dome/malware")
+local unpack  = require("dome/unpack")
 
-local action = xdp.action
-
-local function unpacker(packet, base)
-	local byte = function (offset)
-		return packet:getbyte(base + offset)
-	end
-
-	local short = function (offset)
-		local offset = base + offset
-		return packet:getbyte(offset) << 8 | packet:getbyte(offset + 1)
-	end
-
-	local str = function (offset, length)
-		return packet:getstring(base + offset, length)
-	end
-
-	return byte, short, str
-end
+local action   = xdp.action
+local unpacker = unpack.unpacker
 
 local function offset(argument)
 	return select(2, unpacker(argument, 0))(0)
