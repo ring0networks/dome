@@ -1,4 +1,4 @@
-https.o
+*.o
 malware.lua
 vmlinux.h
 .nsrc

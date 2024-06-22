@@ -21,39 +21,38 @@
 -- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 --
 
-local thread  = require("thread")
-local socket  = require("socket")
-local inet    = require("socket.inet")
-local linux   = require("linux")
+local xdp     = require("xdp")
 local mailbox = require("mailbox")
-local filter  = require("dome/filter")
+local malware = require("dome/malware")
+local unpack  = require("dome/unpack")
 
-local shouldstop = thread.shouldstop
+local action   = xdp.action
+local unpacker = unpack.unpacker
 
-local telegraf = inet.tcp()
-telegraf:connect(inet.localhost, 8094)
-
-local inbox = mailbox.inbox(100 * 1024)
-__filters = { -- keep refs to avoid __gc()
-	sni      = filter.new("sni", inbox.queue),
-	hostname = filter.new("hostname", inbox.queue),
-}
-
-local header = 'https,host=ring-0.io,location=rj '
-
-local function daemon()
-	print("[ring-0/dome] started")
-	while (not shouldstop()) do
-		local message = inbox:receive()
-		if message then
-			local message = string.gsub(message, "(%u+)(%g+)", header .. 'domain="%2",action="%1"\n')
-			telegraf:send(message)
-		else
-			linux.schedule(100)
-		end
-	end
-	print("[ring-0/dome] stopped")
+function argparse(argument)
+	local short = select(2, unpacker(argument, 0))
+	return short(0), short(2)
 end
 
-return daemon
+local outbox
+local function filter_hostname(packet, argument)
+	local offset, length = argparse(argument)
+	local str = select(3, unpacker(packet, offset))
 
+	local request = str(0, length)
+	local hostname = string.match(request, "Host:%s(.-)\r\n")
+
+	local verdict = malware[hostname] and "DROP" or "PASS"
+	outbox:send(verdict .. hostname)
+
+	return action[verdict]
+end
+
+local function attacher(queue)
+	outbox = mailbox.outbox(queue)
+	xdp.attach(filter_hostname)
+	print("[ring-0/dome] HOSTNAME filter attached")
+end
+
+print("[ring-0/dome] HOSTNAME filter loaded")
+return attacher

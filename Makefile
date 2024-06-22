@@ -3,16 +3,19 @@ RM = rm -f
 MKDIR = mkdir -p -m 0755
 INSTALL = install -o root -g root
 
-all: vmlinux.h https.o malware.lua
+EBPF_FILTERS = http https
+EBPF_FILTERS_OBJS = ${EBPF_FILTERS:=.o}
+
+all: vmlinux.h ${EBPF_FILTERS_OBJS} malware.lua
 
 vmlinux.h:
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
 
-https.o: https.c
+%.o: %.c
 	clang -target bpf -Wall -O2 -c -g $<
 
 clean:
-	${RM} vmlinux.h https.o malware.lua
+	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} malware.lua
 
 install: malware.lua
 	${MKDIR} ${INSTALL_PATH}
@@ -23,7 +26,7 @@ uninstall:
 
 run: install
 	lunatik reload
-	xdp-loader load -m skb luaxdp0 https.o
+	xdp-loader load -m skb luaxdp0 ${EBPF_FILTERS_OBJS}
 	lunatik spawn dome/daemon
 
 stop:
