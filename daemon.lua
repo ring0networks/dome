@@ -30,7 +30,7 @@ local filter  = require("dome/filter")
 
 local shouldstop = thread.shouldstop
 
-local telegraf = inet.tcp()
+local telegraf = inet.udp()
 telegraf:connect(inet.localhost, 8094)
 
 local inbox = mailbox.inbox(100 * 1024)
