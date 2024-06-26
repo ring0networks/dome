@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+# SPDX-License-Identifier: GPL-2.0-only
+
 INSTALL_PATH = /lib/modules/lua/dome
 RM = rm -f
 MKDIR = mkdir -p -m 0755
