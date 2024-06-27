@@ -37,7 +37,7 @@ end
 local outbox
 local function filter_hostname(packet, argument)
 	local offset, length = argparse(argument)
-	local str = select(3, unpacker(packet, offset))
+	local str = select(4, unpacker(packet, offset))
 
 	local request = str(0, length)
 	local hostname = string.match(request, "Host:%s(.-)\r\n")

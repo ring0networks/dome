@@ -20,6 +20,8 @@ clean:
 install: malware.lua
 	${MKDIR} ${INSTALL_PATH}
 	${INSTALL} -m 0644 *.lua ${INSTALL_PATH}/
+	${INSTALL} -m 0755 -d ${INSTALL_PATH}/tests
+	${INSTALL} -m 0644 tests/*.lua -t ${INSTALL_PATH}/tests
 
 uninstall:
 	${RM} -r ${INSTALL_PATH}

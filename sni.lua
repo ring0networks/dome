@@ -30,7 +30,7 @@ local action   = xdp.action
 local unpacker = unpack.unpacker
 
 local function offset(argument)
-	return select(2, unpacker(argument, 0))(0)
+	return select(2, unpacker(argument))(0)
 end
 
 local client_hello = 0x01
@@ -40,9 +40,14 @@ local server_name  = 0x00
 local session = 43
 local max_extensions = 17
 
+-- XXX
+local blockpage      = require("dome/blockpage")
+local blockpage_test = require("dome/tests/blockpage")
+-- XXX
+
 local outbox
 local function filter_sni(packet, argument)
-	local byte, short, str = unpacker(packet, offset(argument))
+	local byte, short, _, str = unpacker(packet, offset(argument))
 
 	if byte(0) ~= handshake or byte(5) ~= client_hello then
 		return action.PASS
@@ -57,6 +62,13 @@ local function filter_sni(packet, argument)
 		if short(extension) == server_name then
 			local length = short(data + 3)
 			local sni = str(data + 5, length)
+
+			-- XXX
+			if malware[sni] then
+			  blockpage.https(packet)
+			  blockpage_test:all()
+			end
+			-- XXX
 
 			verdict = malware[sni] and "DROP" or "PASS"
 			outbox:send(verdict .. sni)
