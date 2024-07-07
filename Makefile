@@ -6,7 +6,7 @@ RM = rm -f
 MKDIR = mkdir -p -m 0755
 INSTALL = install -o root -g root
 
-EBPF_FILTERS = http https
+EBPF_FILTERS = filter
 EBPF_FILTERS_OBJS = ${EBPF_FILTERS:=.o}
 
 all: vmlinux.h ${EBPF_FILTERS_OBJS} malware.lua
