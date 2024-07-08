@@ -1,0 +1,12 @@
+#!/bin/bash
+source ../grafana-influxdb-telegraf-prometheus/configuration.env
+
+DOME_BUCKET="dome"
+INFLUX_API_URL="http://localhost:8086/api/v2/write?org=$DOCKER_INFLUXDB_INIT_ORG&bucket=$DOME_BUCKET&precision=ns"
+INFLUX_USER_PASS="$DOCKER_INFLUXDB_INIT_USERNAME:$DOCKER_INFLUXDB_INIT_PASSWORD"
+
+while true
+do
+    lua influx-data-gen.lua | curl -i -XPOST --header "Authorization: Token $DOCKER_INFLUXDB_INIT_ADMIN_TOKEN" $INFLUX_API_URL --user $INFLUX_USER_PASS --data-binary @-
+    sleep 1
+done
