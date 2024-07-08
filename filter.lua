@@ -6,14 +6,27 @@
 local linux   = require("linux")
 local xdp     = require("xdp")
 local mailbox = require("mailbox")
-local malware = require("dome/malware")
 
 local policy = "PASS"
+
+local whitelists = {"work"}
+local blacklists = {"malware"}
 
 local format = string.format
 local function log(fmt, ...)
 	print(format("[ring-0/dome] " .. fmt, ...))
 end
+
+local function loadlists(lists)
+	local result = {}
+	for _, name in ipairs(lists) do
+		result[name] = require("dome/" .. name)
+	end
+	return result
+end
+
+whitelists = loadlists(whitelists)
+blacklists = loadlists(blacklists)
 
 local ntoh16 = linux.ntoh16
 local function unpacker(packet, base)
@@ -71,15 +84,23 @@ local parsers = {
 	[443] = sni,
 }
 
-local function filter(outbox)
-	local action = xdp.action
+local action = xdp.action
 
-	local function argparse(argument)
-		return function (n)
-			return argument:getuint16((n - 1) * 2)
+local function argparse(argument)
+	return function (n)
+		return argument:getuint16((n - 1) * 2)
+	end
+end
+
+local function match(lists, domain, action)
+	for reason, list in pairs(lists) do
+		if list[domain] then
+			return {reason = reason, action = action}
 		end
 	end
+end
 
+local function filter(outbox)
 	return function (packet, argument)
 		local arg = argparse(argument)
 		local dport, offset, length = arg(1), arg(2), arg(3)
@@ -88,13 +109,17 @@ local function filter(outbox)
 		if not parser then
 			log("filter was not found (dport = %d)", dport)
 		else
-			local verdict = policy
+			local verdict = {reason = "default", action = policy}
 			local domain  = parser(packet, offset, length)
 			if domain then
-				verdict = malware[domain] and "DROP" or verdict
-				outbox:send(format('domain="%s",dport="%d",action="%s"', domain, dport, verdict))
+				verdict = match(whitelists, domain, "PASS") or
+					match(blacklists, domain, "DROP") or verdict
+
+				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
+					domain, dport, verdict.action, verdict.reason)
+				outbox:send(message)
 			end
-			return action[verdict]
+			return action[verdict.action]
 		end
 	end
 end
