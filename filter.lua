@@ -69,6 +69,11 @@ local parsers = {
 	[443] = sni,
 }
 
+local reply = {
+	[ 80] = "redirect",
+	[443] = "reset"
+}
+
 local action = xdp.action
 
 local function argparse(argument)
@@ -104,8 +109,8 @@ local function filter(outbox)
 					domain, dport, verdict.action, verdict.reason)
 				outbox.notify:send(message)
 
-				if dport == 443 and verdict.action == "DROP" then
-					outbox.reply:send(packet:getstring(0))
+				if verdict.action == "DROP" then
+					outbox.reply:send(reply[dport] .. ":" .. tostring(packet))
 				end
 			end
 			return action[verdict.action]

@@ -15,13 +15,24 @@ local RAW    = socket.sock.RAW
 local ETH_HLEN  = 14
 local ETH_P_ALL = 0x0003
 
+local TCP_HLEN    = 20
 local IPPROTO_TCP = 0x06
 
+local PSEUDO_HLEN = 12
+
 local RST = 1 << 2
+local PSH = 1 << 3
 local ACK = 1 << 4
 
 local packer   = pack.packer
 local unpacker = pack.unpacker
+
+local HTTP_RESPONSE = string.format(
+	"HTTP/1.0 302 Found\r\n" ..
+	"Location: %s\r\n" ..
+	"Connection: close\r\n" ..
+	"Content-Length: 0\r\n\r\n", config.redirect_url
+)
 
 local net = {}
 
@@ -87,23 +98,26 @@ function net.tcphdr(packet)
 	}, offset
 end
 
-function net.pseudohdr(ip, tcp)
-	local pseudo = data.new(12 + tcp.doff * 4)
+function net.pseudohdr(ip, tcp, payload)
+	local tcp_len = tcp.doff * 4 + (payload and #payload or 0)
+	local pseudo = data.new(PSEUDO_HLEN + tcp_len)
 	local _, setu8, setbe16, setbe32 = packer(pseudo)
 
 	setbe32(0, ip.saddr)
 	setbe32(4, ip.daddr)
 	setu8(8, 0)
 	setu8(9, IPPROTO_TCP)
-	setbe16(10, tcp.doff * 4)
+	setbe16(10, tcp_len)
 
-	return pseudo
+	return pseudo, tcp_len
 end
 
-function net.tcp_checksum(packet)
+function net.tcp_checksum(packet, payload)
 	local ip, tcp, offset = net.iphdr(packet), net.tcphdr(packet)
-	local pseudo = net.pseudohdr(ip, tcp)
-	pseudo:setstring(12, packet:getstring(offset, tcp.doff * 4))
+	local pseudo, tcp_len = net.pseudohdr(ip, tcp, payload)
+
+	pseudo:setstring(PSEUDO_HLEN, packet:getstring(offset, tcp_len))
+
 	return net.checksum(pseudo)
 end
 
@@ -121,49 +135,80 @@ end
 function edit.ip(packet, tcp_len)
 	local _, setu8, setbe16, setbe32 = packer(packet, ETH_HLEN)
 	local ip = net.iphdr(packet, ETH_HLEN)
-	local size = ip.ihl * 4
+	local ip_len = ip.ihl * 4
 
-	setbe16(2, size + tcp_len) -- tot_len = 40
-	setbe16(4, 0)              -- id = 0
-	setbe16(6, 0)              -- frag_off = 0
-	setbe32(12, ip.daddr)      -- saddr = daddr
-	setbe32(16, ip.saddr)      -- daddr = saddr
-	setbe16(10, 0)             -- checksum = 0
-	setbe16(10, net.checksum(packet, ETH_HLEN, size))
+	setbe16(2, ip_len + tcp_len) -- tot_len = ip_len + tcp_len
+	setbe16(4, 0)                -- id = 0
+	setbe16(6, 0)                -- frag_off = 0
+	setbe32(12, ip.daddr)        -- saddr = daddr
+	setbe32(16, ip.saddr)        -- daddr = saddr
+	setbe16(10, 0)               -- checksum = 0
+	setbe16(10, net.checksum(packet, ETH_HLEN, ip_len))
 end
 
-function edit.tcp(packet, flags)
+function edit.tcp(packet, flags, payload)
 	local ip, tcp, offset = net.iphdr(packet), net.tcphdr(packet)
-	local _, setu8, setbe16, setbe32 = packer(packet, offset)
-	setbe16(0, tcp.dest)     -- source = dest
-	setbe16(2, tcp.source)   -- dest = source
-	setbe32(4, tcp.ack_seq)  -- seq = ack_seq
-	setbe32(8, tcp.seq + 1)  -- ack_seq = seq + 1
-	setu8(12, 5 << 4)        -- doff = 5
-	setu8(13, flags)         -- flags = flags
-	setbe16(16, 0)           -- checksum = 0
-	setbe16(16, net.tcp_checksum(packet))
+	local setstr, setu8, setbe16, setbe32 = packer(packet, offset)
+	local nrecv = ip.tot_len - 4 * (ip.ihl + tcp.doff)
+
+	setbe16(0, tcp.dest)        -- source = dest
+	setbe16(2, tcp.source)      -- dest = source
+	setbe32(4, tcp.ack_seq)     -- seq = ack_seq
+	setbe32(8, tcp.seq + nrecv) -- ack_seq = seq + nrecv
+	setu8(12, 5 << 4)           -- doff = 5
+	setu8(13, flags)            -- flags = flags
+	setbe16(16, 0)              -- checksum = 0
+
+	if payload then
+		setstr(TCP_HLEN, payload)
+	end
+
+	setbe16(16, net.tcp_checksum(packet, payload))
 end
 
-function edit.packet(packet, flags)
-	edit.tcp(packet, flags or 0)
-	edit.ip(packet, 20)
+function edit.resize(packet, payload)
+	local ip, tcp = net.iphdr(packet), net.tcphdr(packet)
+	local hlen = 4 * (ip.ihl + tcp.doff)
+	local free = ip.tot_len - hlen
+
+	if #payload > free then
+		local new = data.new(ETH_HLEN + hlen + #payload)
+		new:setstring(0, tostring(packet))
+		packet = new
+	end
+
+	return packet
+end
+
+function edit.packet(packet, flags, payload)
+	packet = payload and edit.resize(packet, payload) or packet
+
+	edit.tcp(packet, flags or 0, payload)
+	edit.ip(packet, TCP_HLEN + (payload and #payload or 0))
 	edit.eth(packet)
-end
 
-local socket = socket.new(PACKET, RAW, ETH_P_ALL)
-local ifindex = linux.ifindex(config.iface)
-
-local function send(packet)
-	local frame = packet:getstring(0, ETH_HLEN + 40)
-	socket:send(frame, ifindex)
+	return packet
 end
 
 local reply = {}
 
-function reply.rst(packet)
-	edit.packet(packet, RST | ACK)
-	send(packet)
+local socket = socket.new(PACKET, RAW, ETH_P_ALL)
+local ifindex = linux.ifindex(config.iface)
+
+function reply.send(packet)
+	local ip = net.iphdr(packet)
+	local frame = packet:getstring(0, ETH_HLEN + ip.tot_len)
+	socket:send(frame, ifindex)
+end
+
+function reply.reset(packet)
+	packet = edit.packet(packet, RST | ACK)
+	reply.send(packet)
+end
+
+function reply.redirect(packet)
+	packet = edit.packet(packet, PSH | ACK, HTTP_RESPONSE)
+	reply.send(packet)
 end
 
 return reply

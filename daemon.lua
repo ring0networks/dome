@@ -47,9 +47,10 @@ local function daemon()
 		end
 		local frame = inbox.reply:receive()
 		if frame then
+			local what, frame = frame:match('(%a*):(.*)')
 			local packet = data.new(#frame)
 			packet:setstring(0, frame)
-			reply.rst(packet)
+			reply[what](packet)
 		end
 		if not message and not frame then
 			linux.schedule(100)
