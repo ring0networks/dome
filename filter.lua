@@ -3,9 +3,11 @@
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
-local linux   = require("linux")
 local xdp     = require("xdp")
 local mailbox = require("mailbox")
+local pack    = require("dome/pack")
+
+local unpacker = pack.unpacker
 
 local policy = "PASS"
 
@@ -27,23 +29,6 @@ end
 
 whitelists = loadlists(whitelists)
 blacklists = loadlists(blacklists)
-
-local ntoh16 = linux.ntoh16
-local function unpacker(packet, base)
-	local u8 = function (offset)
-		return packet:getuint8(base + offset)
-	end
-
-	local be16 = function (offset)
-		return ntoh16(packet:getuint16(base + offset))
-	end
-
-	local str = function (offset, length)
-		return packet:getstring(base + offset, length)
-	end
-
-	return str, u8, be16
-end
 
 local function hostname(packet, offset, length)
 	local str = unpacker(packet, offset)
@@ -117,15 +102,22 @@ local function filter(outbox)
 
 				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
 					domain, dport, verdict.action, verdict.reason)
-				outbox:send(message)
+				outbox.notify:send(message)
+
+				if dport == 443 and verdict.action == "DROP" then
+					outbox.reply:send(packet:getstring(0))
+				end
 			end
 			return action[verdict.action]
 		end
 	end
 end
 
-local function attacher(queue)
-	local outbox = mailbox.outbox(queue)
+local function attacher(notify, reply)
+	local outbox = {
+		notify = mailbox.outbox(notify),
+		reply = mailbox.outbox(reply)
+	}
 	xdp.attach(filter(outbox))
 	log("filter attached")
 end

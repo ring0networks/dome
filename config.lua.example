@@ -1,0 +1,6 @@
+return {
+	iface = 'eth0',
+	mailbox_max = 100 * 1024,
+	notify_header = 'http,host=ring-0.io,location=rj '
+}
+

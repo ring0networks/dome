@@ -1,4 +1,5 @@
 *.o
+config.lua
 malware.lua
 vmlinux.h
 .nsrc
