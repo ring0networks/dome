@@ -1,0 +1,18 @@
+#!/bin/bash
+cd grafana-influxdb-telegraf-prometheus
+./deploy_all.sh
+source configuration.env
+sleep 2
+
+ORG_ID=$(curl -s  --request GET "http://localhost:8086/api/v2/orgs" \
+  --header "Authorization: Token ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}" -s \
+  | grep 'id":' \
+  | sed 's/^[[:blank:]]*"id": "\(.*\)".*/\1/')
+
+curl -s -o /dev/null --request POST \
+  "http://localhost:8086/api/v2/buckets" \
+  --header "Authorization: Token ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}" \
+  --header "Content-type: application/json" \
+  --data '{ "orgID": "'"$ORG_ID"'", "name": "dome" }'
+
+cd ..

@@ -1,0 +1,4 @@
+#!/bin/bash
+cd grafana-influxdb-telegraf-prometheus
+./undeploy_all.sh
+cd ..
