@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+# SPDX-License-Identifier: GPL-2.0-only
 
 export LUAXDP_GW=enp0s1 # replace it with your gateway interface
 echo 1 > /proc/sys/net/ipv4/ip_forward
