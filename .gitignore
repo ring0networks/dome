@@ -1,6 +1,6 @@
 *.o
 config.lua
-malware.lua
+blocklist/
 vmlinux.h
 .nsrc
 
