@@ -6,13 +6,11 @@
 local xdp     = require("xdp")
 local mailbox = require("mailbox")
 local pack    = require("dome/pack")
+local config  = require("dome/config")
 
 local unpacker = pack.unpacker
 
 local policy = "PASS"
-
-local whitelists = {"work"}
-local blacklists = {"malware"}
 
 local format = string.format
 local function log(fmt, ...)
@@ -27,8 +25,8 @@ local function loadlists(lists)
 	return result
 end
 
-whitelists = loadlists(whitelists)
-blacklists = loadlists(blacklists)
+local allowlists = loadlists(config.allowlists)
+local blocklists = loadlists(config.blocklists)
 
 local function hostname(packet, offset, length)
 	local str = unpacker(packet, offset)
@@ -102,8 +100,8 @@ local function filter(outbox)
 			local verdict = {reason = "default", action = policy}
 			local domain  = parser(packet, offset, length)
 			if domain then
-				verdict = match(whitelists, domain, "PASS") or
-					match(blacklists, domain, "DROP") or verdict
+				verdict = match(allowlists, domain, "PASS") or
+					match(blocklists, domain, "DROP") or verdict
 
 				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
 					domain, dport, verdict.action, verdict.reason)

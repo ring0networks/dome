@@ -9,7 +9,7 @@ INSTALL = install -o root -g root
 EBPF_FILTERS = filter
 EBPF_FILTERS_OBJS = ${EBPF_FILTERS:=.o}
 
-all: vmlinux.h ${EBPF_FILTERS_OBJS} config.lua malware.lua
+all: vmlinux.h ${EBPF_FILTERS_OBJS} config.lua blocklist
 
 vmlinux.h:
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
@@ -18,11 +18,13 @@ vmlinux.h:
 	clang -target bpf -Wall -O2 -c -g $<
 
 clean:
-	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} config.lua malware.lua
+	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} config.lua
+	${RM} -r blocklist/
 
 install: config.lua malware.lua
 	${MKDIR} ${INSTALL_PATH}
 	${INSTALL} -m 0644 *.lua ${INSTALL_PATH}/
+	${INSTALL} -m 0644 blocklist/*.lua ${INSTALL_PATH}/
 
 uninstall:
 	${RM} -r ${INSTALL_PATH}
@@ -42,6 +44,6 @@ namespace:
 config.lua:
 	cat config.lua.example | sed 's/eth0/luaxdp0/g' > config.lua
 
-malware.lua:
-	./malware.sh
+blocklist:
+	./blocklist.sh
 
