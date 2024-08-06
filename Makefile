@@ -21,7 +21,7 @@ clean:
 	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} config.lua
 	${RM} -r blocklist/
 
-install: config.lua malware.lua
+install: config.lua
 	${MKDIR} ${INSTALL_PATH}
 	${INSTALL} -m 0644 *.lua ${INSTALL_PATH}/
 	${INSTALL} -m 0644 blocklist/*.lua ${INSTALL_PATH}/

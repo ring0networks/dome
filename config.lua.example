@@ -2,6 +2,8 @@ return {
 	iface = 'eth0',
 	mailbox_max = 100 * 1024,
 	notify_header = 'http,host=ring-0.io,location=rj ',
-	redirect_url = 'https://ring0networks.github.io/block.html'
+	redirect_url = 'https://ring0networks.github.io/block.html',
+	allowlists = {},
+	blocklists = {}
 }
 
