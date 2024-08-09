@@ -7,6 +7,10 @@
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
 
+#define ETH_ALEN 6
+
+#define memcpy __builtin_memcpy
+
 extern int bpf_luaxdp_run(char *key, size_t key__sz, struct xdp_md *xdp_ctx, void *arg, size_t arg__sz) __ksym;
 
 static char runtime[] = "dome/filter";
@@ -17,6 +21,25 @@ struct bpf_luaxdp_arg {
 	__u16 length;
 } __attribute__((packed));
 
+#ifdef DOME_MODE_ROUTER
+static inline int default_action(void *data)
+{
+	return XDP_PASS;
+}
+#else
+static inline int default_action(void *data)
+{
+	unsigned char tmp[ETH_ALEN];
+	struct ethhdr *eth = data;
+
+	memcpy(tmp, eth->h_dest, ETH_ALEN);
+	memcpy(eth->h_dest, eth->h_source, ETH_ALEN);
+	memcpy(eth->h_source, tmp, ETH_ALEN);
+
+	return XDP_TX;
+}
+#endif
+
 SEC("xdp")
 int filter(struct xdp_md *ctx)
 {
@@ -26,31 +49,33 @@ int filter(struct xdp_md *ctx)
 	struct iphdr *ip = data + sizeof(struct ethhdr);
 
 	if (ip + 1 > (struct iphdr *)data_end)
-		goto pass;
+		return XDP_DROP;
 
 	if (ip->protocol != IPPROTO_TCP)
-		goto pass;
+		goto end;
 
 	struct tcphdr *tcp = (void *)ip + (ip->ihl * 4);
 	if (tcp + 1 > (struct tcphdr *)data_end)
-		goto pass;
+		goto end;
 
 	__u16 dport = bpf_ntohs(tcp->dest);
 	if ((dport != 80 && dport != 443) || !tcp->psh)
-		goto pass;
+		goto end;
 
 	void *payload = (void *)tcp + (tcp->doff * 4);
 	if (payload > data_end)
-		goto pass;
+		goto end;
 
 	arg.dport = dport;
 	arg.offset = (__u16)(payload - data);
 	arg.length = (__u16)(data_end - payload);
 
 	int action = bpf_luaxdp_run(runtime, sizeof(runtime), ctx, &arg, sizeof(arg));
-	return action < 0 ? XDP_PASS : action;
-pass:
-	return XDP_PASS;
+	if (action >= 0 && action != XDP_PASS) {
+		return action;
+	}
+end:
+	return default_action(data);
 }
 
 char _license[] SEC("license") = "GPL";
