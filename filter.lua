@@ -105,10 +105,10 @@ local function filter(outbox)
 
 				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
 					domain, dport, verdict.action, verdict.reason)
-				outbox.notify:send(message)
+				outbox.notify(message)
 
 				if verdict.action == "DROP" then
-					outbox.reply:send(reply[dport] .. ":" .. tostring(packet))
+					outbox.reply(reply[dport] .. ":" .. tostring(packet))
 				end
 			end
 			return action[verdict.action]
@@ -116,10 +116,20 @@ local function filter(outbox)
 	end
 end
 
+local function sender(action, queue)
+	return function (...)
+		local outbox = mailbox.outbox(queue)
+		local ok, err =  pcall(outbox.send, outbox, ...)
+		if not ok then
+			log("failed to %s: %s", action, err)
+		end
+	end
+end
+
 local function attacher(notify, reply)
 	local outbox = {
-		notify = mailbox.outbox(notify),
-		reply = mailbox.outbox(reply)
+		notify = sender('notify', notify),
+		reply = sender('reply', reply),
 	}
 	xdp.attach(filter(outbox))
 	log("filter attached")
