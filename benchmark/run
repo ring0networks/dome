@@ -1,0 +1,40 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+# SPDX-License-Identifier: GPL-2.0-only
+
+if [ $# -ne 1 ] && [ $# -ne 2 ]; then
+	printf "Usage: %s <ipaddr> [http/https]\n" "$(basename $0)" >&2
+	exit 1
+fi
+
+server_addr="$1"
+
+mkdir -p ./log
+	
+benchmark_siege() {
+	siege -R ./etc/siege.conf -c 8 -r 100000 -q 	\
+		--log=./log/$1.log "$1://$server_addr" 	\
+	| tee -a log/$1.json
+}
+
+benchmark_ab() {
+	ab -n 800000 -c 256 "$1://$server_addr/" | tee -a log/$1.ab
+}
+
+benchmark_wrk() {
+	wrk -c 256 -d 20m -t 1 --latency "$1://$server_addr" | tee -a log/$1.wrk
+}
+
+benchmark() {
+	benchmark_siege "$*"
+	benchmark_ab "$*"
+	benchmark_wrk "$*"
+}
+
+if [ "$2" = "http" ] || [ "$2" = "https" ]; then
+	benchmark "$2"
+else
+	benchmark "http"
+	benchmark "https"
+fi
+
