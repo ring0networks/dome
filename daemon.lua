@@ -53,7 +53,7 @@ local function daemon()
 			reply[what](packet)
 		end
 		if not message and not frame then
-			linux.schedule(100)
+			linux.schedule(config.schedule_interval)
 		end
 	end
 	print("[ring-0/dome] stopped")
