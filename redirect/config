@@ -1,0 +1,57 @@
+#!/bin/sh
+# SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+# SPDX-License-Identifier: GPL-2.0-only
+
+REDIRECT_MACADDR_GATEWAY1="08 00 27 b0 00 8f"
+REDIRECT_MACADDR_GATEWAY2="08 00 27 ca 8c 88"
+REDIRECT_MACADDR_CLIENT="08 00 27 65 dd 94"
+REDIRECT_MACADDR_DOME="08 00 27 a2 ee cc"
+REDIRECT_IFINDEX_GATEWAY1="03 00 00 00"
+REDIRECT_IFINDEX_GATEWAY2="04 00 00 00"
+
+bpf_list()
+{
+	map_name=$1
+
+	sudo bpftool map show -p name $map_name | grep '"id"' | grep -oE '[0-9]+' || \
+	    printf "error: map not found: %s\n" "$map_name" >&2
+}
+
+bpf_key()
+{
+	printf "%-8s" "$1" | xxd -ps | sed 's/\(..\)/\1 /g'
+}
+
+bpf_update()
+{
+	id="$1"
+	key="$2"
+	value="$3"
+
+	sudo bpftool map update id $id key hex $key value hex $value 2> /dev/null || \
+        printf "error: updating key: %s (value=%s)\n" "$2" "$value" >&2
+}
+
+bpf_update_str()
+{
+	key="$(bpf_key $2)"
+
+	bpf_update "$1" "$key" "$3"
+}
+
+config()
+{
+	for id in $(bpf_list macaddr_map); do
+		bpf_update_str $id gateway1 "$REDIRECT_MACADDR_GATEWAY1"
+		bpf_update_str $id gateway2 "$REDIRECT_MACADDR_GATEWAY2"
+		bpf_update_str $id client "$REDIRECT_MACADDR_CLIENT"
+		bpf_update_str $id dome "$REDIRECT_MACADDR_DOME"
+	done
+	for id in $(bpf_list ifindex_map); do
+		bpf_update $id "01 00 00 00" "$REDIRECT_IFINDEX_GATEWAY1"
+		bpf_update $id "02 00 00 00" "$REDIRECT_IFINDEX_GATEWAY2"
+	done
+}
+
+config
+

@@ -1,0 +1,12 @@
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+    eth1:
+      addresses:
+      - 10.0.5.1/24
+    eth2:
+      addresses:
+      - 10.0.6.1/24
+

@@ -10,8 +10,6 @@ local config  = require("dome/config")
 
 local unpacker = pack.unpacker
 
-local policy = "PASS"
-
 local format = string.format
 local function log(fmt, ...)
 	print(format("[ring-0/dome] " .. fmt, ...))
@@ -74,10 +72,16 @@ local reply = {
 
 local action = xdp.action
 
+local action_name = {}
+for name, action in pairs(action) do
+	map[action] = name
+end
+
 local function argparse(argument)
-	return function (n)
-		return argument:getuint16((n - 1) * 2)
-	end
+	return argument:getuint16(0),
+		argument:getuint16(2),
+		argument:getuint16(4),
+		argument:getuint8(6)
 end
 
 local function match(lists, domain, action)
@@ -90,28 +94,28 @@ end
 
 local function filter(outbox)
 	return function (packet, argument)
-		local arg = argparse(argument)
-		local dport, offset, length = arg(1), arg(2), arg(3)
+		local dport, offset, length, allow = argparse(argument)
 		local parser = parsers[dport]
 
 		if not parser then
 			log("filter was not found (dport = %d)", dport)
 		else
+			local policy = config.policy == "allow" and allow or action.DROP
 			local verdict = {reason = "default", action = policy}
 			local domain  = parser(packet, offset, length)
 			if domain then
-				verdict = match(allowlists, domain, "PASS") or
-					match(blocklists, domain, "DROP") or verdict
+				verdict = match(allowlists, domain, allow) or
+					match(blocklists, domain, action.DROP) or verdict
 
 				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
-					domain, dport, verdict.action, verdict.reason)
+					domain, dport, action_name[verdict.action], verdict.reason)
 				outbox.notify(message)
 
-				if verdict.action == "DROP" then
+				if verdict.action == action.DROP then
 					outbox.reply(reply[dport] .. ":" .. tostring(packet))
 				end
 			end
-			return action[verdict.action]
+			return verdict.action
 		end
 	end
 end
@@ -119,7 +123,7 @@ end
 local function sender(action, queue)
 	return function (...)
 		local outbox = mailbox.outbox(queue)
-		local ok, err =  pcall(outbox.send, outbox, ...)
+		local ok, err = pcall(outbox.send, outbox, ...)
 		if not ok then
 			log("failed to %s: %s", action, err)
 		end
