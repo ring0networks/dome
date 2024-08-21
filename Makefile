@@ -15,7 +15,7 @@ vmlinux.h:
 	bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h
 
 %.o: %.c
-	clang -target bpf -Wall -O2 -c -g $<
+	clang -target bpf -Wall -O2 -c -g ${CFLAGS} $<
 
 clean:
 	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} config.lua

@@ -1,6 +1,18 @@
 # Ring-0 D0me
 
+## Compilation
+
+There are two ways to compile Ring-0 D0me:
+- **Bridge Mode**: Simply invoke `make`. This will set the filter to run in “bridge mode”, where the module will swap the Ethernet source and destination and then return `TX`. This is the default. 
+- **Router Mode**: Use `make CFLAGS=-DDOME_CONFIG_ROUTER` to compile it in “router mode”. In this mode, the XDP will return `PASS`, allowing the packet to fall through the entire TCP stack.
+
+
 ## Configuration
+
+### Bridge Mode 
+
+When running in “bridge mode”, it is common to use the `filter` in conjunction with the BPF module located in the `redirect` directory. For detailed instructions, please refer to the `redirect/README.md`.
+
 
 ### Telegraf
 
