@@ -11,6 +11,7 @@ local config  = require("dome/config")
 local unpacker = pack.unpacker
 
 local format = string.format
+
 local function log(fmt, ...)
 	print(format("[ring-0/dome] " .. fmt, ...))
 end
@@ -74,7 +75,7 @@ local action = xdp.action
 
 local action_name = {}
 for name, action in pairs(action) do
-	map[action] = name
+	action_name[action] = name
 end
 
 local function argparse(argument)
@@ -112,7 +113,7 @@ local function filter(outbox)
 				outbox.notify(message)
 
 				if verdict.action == action.DROP then
-					outbox.reply(reply[dport] .. ":" .. tostring(packet))
+					outbox.reply(reply[dport] .. "|" .. tostring(packet))
 				end
 			end
 			return verdict.action
@@ -120,21 +121,23 @@ local function filter(outbox)
 	end
 end
 
-local function sender(action, queue)
-	return function (...)
-		local outbox = mailbox.outbox(queue)
-		local ok, err = pcall(outbox.send, outbox, ...)
+local function sender(action, queue, event)
+	local outbox = mailbox.outbox(queue, event)
+
+	return function (message)
+		local ok, err = pcall(outbox.send, outbox, action .. '|' .. message)
 		if not ok then
 			log("failed to %s: %s", action, err)
 		end
 	end
 end
 
-local function attacher(notify, reply)
+local function attacher(queue, event)
 	local outbox = {
-		notify = sender('notify', notify),
-		reply = sender('reply', reply),
+		notify = sender("notify", queue, event),
+		reply = sender("reply", queue, event)
 	}
+
 	xdp.attach(filter(outbox))
 	log("filter attached")
 end
