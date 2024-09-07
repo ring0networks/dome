@@ -31,7 +31,7 @@ local function dispatch(script, ...)
 	end
 
 	local runtime = lunatik.runtime(script, false)
-	thread.run(runtime, script, ...)
+	runtime:resume(...)
 	runtimes[script] = runtime
 end
 
