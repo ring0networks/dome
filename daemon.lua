@@ -8,13 +8,13 @@ local thread     = require("thread")
 local socket     = require("socket")
 local inet       = require("socket.inet")
 local mailbox    = require("mailbox")
-local rcu        = require("rcu") -- used for lunatik.runtimes()
+local linux      = require("linux")
 local data       = require("data")
 local completion = require("completion")
 local config     = require("dome/config")
 local reply      = require("dome/reply")
 
-local runtimes = lunatik.runtimes()
+local env = lunatik._ENV
 
 local shouldstop = thread.shouldstop
 
@@ -26,13 +26,13 @@ function telegraf:push(message)
 end
 
 local function dispatch(script, ...)
-	if runtimes[script] then
+	if env.runtimes[script] then
 		error(string.format("%s is already running", script))
 	end
 
 	local runtime = lunatik.runtime(script, false)
 	runtime:resume(...)
-	runtimes[script] = runtime
+	env.runtimes[script] = runtime
 end
 
 local function daemon()
