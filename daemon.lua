@@ -30,9 +30,13 @@ local function dispatch(script, ...)
 		error(string.format("%s is already running", script))
 	end
 
-	local runtime = lunatik.runtime(script, false)
-	runtime:resume(...)
-	env.runtimes[script] = runtime
+	local args = {...}
+	linux.percpu(function (cpu)
+		local runtime = lunatik.runtime(script, false)
+		runtime:resume(table.unpack(args))
+		local name = cpu == 0 and script or script .. ':' .. cpu
+		env.runtimes[name] = runtime
+	end)
 end
 
 local function daemon()
