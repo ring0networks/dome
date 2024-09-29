@@ -4,17 +4,15 @@
 --
 
 local lunatik    = require("lunatik")
+local runner     = require("lunatik.runner")
 local thread     = require("thread")
 local socket     = require("socket")
 local inet       = require("socket.inet")
 local mailbox    = require("mailbox")
-local rcu        = require("rcu") -- used for lunatik.runtimes()
 local data       = require("data")
 local completion = require("completion")
 local config     = require("dome/config")
 local reply      = require("dome/reply")
-
-local runtimes = lunatik.runtimes()
 
 local shouldstop = thread.shouldstop
 
@@ -23,16 +21,6 @@ local inbox = mailbox.inbox(config.mailbox_max)
 local telegraf = inet.udp()
 function telegraf:push(message)
 	self:sendto(message, inet.localhost, 8094)
-end
-
-local function dispatch(script, ...)
-	if runtimes[script] then
-		error(string.format("%s is already running", script))
-	end
-
-	local runtime = lunatik.runtime(script, false)
-	runtime:resume(...)
-	runtimes[script] = runtime
 end
 
 local function daemon()
@@ -56,7 +44,7 @@ local function daemon()
 	print("[ring-0/dome] stopped")
 end
 
-dispatch("dome/filter", inbox.queue, inbox.event)
+runner.run("dome/filter", false):resume(inbox.queue, inbox.event)
 
 return daemon
 
