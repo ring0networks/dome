@@ -12,17 +12,18 @@ server_addr="$1"
 mkdir -p ./log
 	
 benchmark_siege() {
-	siege -R ./etc/siege.conf -c 8 -r 100000 -q 	\
-		--log=./log/$1.log "$1://$server_addr" 	\
+	siege -R ./etc/siege.conf -c 8 -r 100000 -q	\
+		--log=./log/$1.log "$1://$server_addr"	\
 	| tee -a log/$1.json
 }
 
 benchmark_ab() {
-	ab -n 800000 -c 256 "$1://$server_addr/" | tee -a log/$1.ab
+	ab -k -n 800000 -c 256 "$1://$server_addr/" | tee -a log/$1.ab
 }
 
 benchmark_wrk() {
-	wrk -c 256 -d 20m -t 1 --latency "$1://$server_addr" | tee -a log/$1.wrk
+	wrk -c 256 -d 20m -t 1 -H "Connection: keep-alive" \
+		--latency "$1://$server_addr" | tee -a log/$1.wrk
 }
 
 benchmark() {
