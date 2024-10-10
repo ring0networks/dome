@@ -1,0 +1,36 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+  config.vm.box = "generic/ubuntu2204"
+  config.vm.hostname = "dome.local"
+  config.vm.boot_timeout = 300
+
+  config.vm.provision :file, source: "bootstrap-root.sh", destination: "/home/vagrant/bootstrap-root.sh"
+  config.vm.provision :file, source: "bootstrap-user.sh", destination: "/home/vagrant/bootstrap-user.sh"
+
+  config.vm.provision :shell, inline: <<-SHELL
+    echo "root:dome" | sudo chpasswd
+  SHELL
+
+  config.vm.define :dome, autostart: false do |dome|
+    dome.vm.provision "shell", inline: <<-SHELL
+      sudo apt update -y
+      sudo apt upgrade -y
+      sudo apt install ubuntu-release-upgrader-core
+      sudo -i /bin/bash /home/vagrant/bootstrap-root.sh
+      sudo reboot
+    SHELL
+
+    dome.vm.provision :shell, inline: <<-SHELL
+      sleep 120
+      sudo -i -u dome /bin/bash /home/vagrant/bootstrap-user.sh
+    SHELL
+  end
+
+  config.vm.provider :virtualbox do |vbox|
+    vbox.name = "dome"
+    vbox.memory = 1024
+    vbox.cpus = 2
+  end
+end
