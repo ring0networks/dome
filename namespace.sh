@@ -2,7 +2,9 @@
 # SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
 # SPDX-License-Identifier: GPL-2.0-only
 
-export LUAXDP_GW=enp0s1 # replace it with your gateway interface
+# set gateway interface
+[ -z "$LUAXDP_GW" ] && LUAXDP_GW=$(ip r | awk 'NR ==1 {print $5}')
+
 echo 1 > /proc/sys/net/ipv4/ip_forward
 ip netns add luaxdp
 ip netns exec luaxdp ip link set lo up
