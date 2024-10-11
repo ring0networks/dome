@@ -9,6 +9,8 @@ INSTALL = install -o root -g root
 EBPF_FILTERS = filter
 EBPF_FILTERS_OBJS = ${EBPF_FILTERS:=.o}
 
+CFLAGS=-DDOME_CONFIG_ROUTER
+
 all: vmlinux.h ${EBPF_FILTERS_OBJS} config.lua blocklist
 
 vmlinux.h:
