@@ -21,3 +21,7 @@ for name in ${lists}; do
 	rm ${list}
 done
 
+# create example blocklist for dev purposes
+echo "return {
+[\"ebpf.io\"]=true,
+}" > ${dir}/example.lua
