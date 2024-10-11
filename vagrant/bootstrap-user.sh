@@ -40,7 +40,11 @@ sudo rm -rf /lib/modules/$KERNEL_VERSION/kernel/zfs
 ## Install `dome`.
 
 cd $HOME/src
-git clone --recursive https://github.com/ring0networks/dome.git
+BRANCH=""
+if [ -n "$DOME_BRANCH" ]; then
+        BRANCH="--branch $DOME_BRANCH"
+fi
+git clone --recursive https://github.com/ring0networks/dome.git --single-branch $BRANCH
 cd dome
 make -j$(nproc)
 sudo -E make install
