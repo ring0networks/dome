@@ -11,6 +11,8 @@ EBPF_FILTERS_OBJS = ${EBPF_FILTERS:=.o}
 
 CFLAGS=-DDOME_CONFIG_ROUTER
 
+.PHONY: config.lua
+
 all: vmlinux.h ${EBPF_FILTERS_OBJS} config.lua blocklist
 
 vmlinux.h:
