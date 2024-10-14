@@ -4,15 +4,11 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "generic/ubuntu2204"
 
-  config.vm.define :dome, autostart: false do |dome|
+  config.vm.network "private_network", type: "dhcp"
+
+  config.vm.define :dome, primary:true do |dome|
     dome.vm.hostname = "dome.local"
     dome.vm.boot_timeout = 300
-
-    dome.vm.network "public_network", bridge: true
-    # delete default route to nat interface
-    dome.vm.provision "shell",
-      run: "always",
-      inline: "ip route del default via 10.0.2.2 || true"
 
     dome.vm.provision :file, source: "bootstrap-root.sh", destination: "/home/vagrant/bootstrap-root.sh"
     dome.vm.provision :file, source: "bootstrap-user.sh", destination: "/home/vagrant/bootstrap-user.sh"
@@ -39,5 +35,9 @@ Vagrant.configure(2) do |config|
       vbox.memory = 1024
       vbox.cpus = 2
     end
+  end
+
+  config.vm.define :dome_client, primary:true do |dome_client|
+
   end
 end
