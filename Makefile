@@ -24,6 +24,7 @@ vmlinux.h:
 clean:
 	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} config.lua
 	${RM} -r blocklist/
+	./namespace.sh down
 
 install: config.lua blocklist
 	${MKDIR} ${INSTALL_PATH}
@@ -35,18 +36,18 @@ uninstall:
 
 run: install
 	lunatik reload
-	xdp-loader load -m skb luaxdp0 ${EBPF_FILTERS_OBJS}
+	xdp-loader load -m skb ${LUAXDP_IFACE} ${EBPF_FILTERS_OBJS}
 	lunatik spawn dome/daemon
 
 stop:
-	xdp-loader unload --all luaxdp0
+	xdp-loader unload --all ${LUAXDP_IFACE}
 	lunatik stop dome/daemon
 
 namespace:
-	./namespace.sh
+	./namespace.sh up
 
 config.lua:
-	cat config.lua.example | sed 's/eth0/luaxdp0/g' > config.lua
+	cat config.lua.example | sed 's/eth0/${LUAXDP_IFACE}/g' > config.lua
 
 blocklist:
 	./blocklist.sh

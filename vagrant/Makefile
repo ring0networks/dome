@@ -2,7 +2,7 @@
 .PHONY: all clean
 
 all:
-	vagrant up --provider=virtualbox dome
+	vagrant up
 
 clean:
 	vagrant destroy dome

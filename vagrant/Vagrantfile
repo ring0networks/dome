@@ -4,8 +4,28 @@
 Vagrant.configure(2) do |config|
   config.vm.box = "generic/ubuntu2204"
 
-  config.vm.define :dome, autostart: false do |dome|
+  config.vm.define :dome, primary:true do |dome|
     dome.vm.hostname = "dome.local"
+    # bridge
+    dome.vm.network "public_network", bridge: true
+    # dome ingress iface
+    dome.vm.network "public_network", bridge: true
+
+    dome.vm.provision "shell", run: "always", inline: <<-SHELL
+      # delete default route to nat interface
+      ip route del default via 10.0.2.2
+
+      # set bridge interface as dome gateway
+      export LUAXDP_GW=eth1
+      # set host-only interface as dome interface
+      export LUAXDP_IFACE=eth2
+
+      sysctl -w net.ipv4.ip_forward=1
+      iptables -A FORWARD -o $LUAXDP_GW -i $LUAXDP_IFACE -j ACCEPT
+      iptables -A FORWARD -i $LUAXDP_GW -o $LUAXDP_IFACE -j ACCEPT
+      iptables -t nat -A POSTROUTING -o $LUAXDP_GW -j MASQUERADE
+    SHELL
+
     dome.vm.boot_timeout = 300
 
     dome.vm.provision :file, source: "bootstrap-root.sh", destination: "/home/vagrant/bootstrap-root.sh"
@@ -24,7 +44,7 @@ Vagrant.configure(2) do |config|
     SHELL
 
     dome.vm.provision :shell, inline: <<-SHELL
-      sleep 120
+      sleep 180
       sudo -i -u dome /bin/bash /home/vagrant/bootstrap-user.sh
     SHELL
 
@@ -34,4 +54,24 @@ Vagrant.configure(2) do |config|
       vbox.cpus = 2
     end
   end
+
+#  config.vm.define :client, primary:true do |client|
+#    client.vm.hostname = "client.local"
+#    # host-only
+#    client.vm.network "private_network", ip: "192.168.56.4"
+#
+#    client.vm.provision "shell", run: "always", inline: <<-SHELL
+#      # delete default route to nat interface
+#      ip route del default via 10.0.2.2
+#
+#      # set default route to dome
+#      ip route add default via 192.168.56.3 proto static src 192.168.56.4 metric 100
+#    SHELL
+#
+#    client.vm.provider :virtualbox do |vbox|
+#      vbox.name = "client"
+#      vbox.memory = 1024
+#      vbox.cpus = 1
+#    end
+#  end
 end
