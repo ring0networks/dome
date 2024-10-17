@@ -24,6 +24,7 @@ vmlinux.h:
 clean:
 	${RM} vmlinux.h ${EBPF_FILTERS_OBJS} config.lua
 	${RM} -r blocklist/
+	./namespace.sh down
 
 install: config.lua blocklist
 	${MKDIR} ${INSTALL_PATH}
@@ -43,7 +44,7 @@ stop:
 	lunatik stop dome/daemon
 
 namespace:
-	./namespace.sh
+	./namespace.sh up
 
 config.lua:
 	cat config.lua.example | sed 's/eth0/luaxdp0/g' > config.lua
