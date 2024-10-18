@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
 # SPDX-License-Identifier: GPL-2.0-only
-set -o pipefail
+set -eo pipefail
 
 # Define the script name and description
 SCRIPT_NAME=$(basename "$0")
@@ -16,18 +16,34 @@ VALUES=("up" "down")
 function enable_namespace() {
   sysctl -w net.ipv4.ip_forward=1
 
+  # create namespace luaxdp
   ip netns add luaxdp
+  # enable loopback interface as it's disabled by default
   ip netns exec luaxdp ip link set lo up
+
+  # add virtual (external) namespace interface
   ip link add luaxdp0 type veth peer name luaxdp1
+
+  # add internal interface to the namespace
   ip link set luaxdp1 netns luaxdp
+
+  # set addresses
   ip addr add 10.0.0.1/24 dev luaxdp0
   ip netns exec luaxdp ip addr add 10.0.0.2/24 dev luaxdp1
+
+  # enable interfaces
   ip link set luaxdp0 up
   ip netns exec luaxdp ip link set luaxdp1 up
 
+  # set dome forward rules
   iptables -A FORWARD -o $LUAXDP_GW -i luaxdp0 -j ACCEPT
   iptables -A FORWARD -i $LUAXDP_GW -o luaxdp0 -j ACCEPT
+
+  # set NAT for dome default gateway interface
   iptables -t nat -A POSTROUTING -s 10.0.0.2/24 -o $LUAXDP_GW -j MASQUERADE
+
+  # set default gateway for namespace:w
+
   ip netns exec luaxdp ip route add default via 10.0.0.1
 
   mkdir -p /etc/netns/luaxdp
