@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# https://github.com/NickMRamirez/Proxy-Benchmarks/blob/master/client/client_setup.sh
+sudo sysctl -w net.ipv4.ip_local_port_range="1024 65535"
+sudo sysctl -w net.ipv4.tcp_tw_reuse=1
+sudo sysctl -w net.ipv4.tcp_timestamps=2
+
+# https://blog.cloudflare.com/optimizing-tcp-for-high-throughput-and-low-latency/#selecting-sysctl-values
+sudo sysctl -w net.ipv4.tcp_rmem="8192 262144 536870912"
+sudo sysctl -w net.ipv4.tcp_wmem="4096 16384 536870912"
+# sudo sysctl -w net.ipv4.tcp_wmem="4096 65536 16777216"
+sudo sysctl -w net.ipv4.tcp_adv_win_scale=-2
+ulimit -n 250000
+
+# disable tcp sack (selective acknowledgement)
+sudo sysctl -w net.ipv4.tcp_sack=0
+
+# aumenta o backlog da fila de conexoes TCP
+sudo sysctl -w net.ipv4.tcp_max_syn_backlog=4096
+sudo sysctl -w net.core.somaxconn=65535
+# sudo sysctl -w net.core.netdev_max_backlog=250000
+# sudo sysctl -w net.core.rmem_max=16777216
+# sudo sysctl -w net.core.wmem_max=16777216

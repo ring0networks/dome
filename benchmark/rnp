@@ -5,6 +5,7 @@ if [ -e ./log ]; then
 	exit 1
 fi
 
+./tune > /dev/null 2>&1
 ./cpu 2 rnp-cli rnp-dome rnp-serv
 ./run rnp-serv https
 ./cpu -stop rnp-cli rnp-dome rnp-serv
