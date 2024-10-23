@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if [ $# -lt 2 ]; then
+	printf "%s <period|-stop> <server> [server ...]\n  run sar <period> on the servers.\n" "$(basename $0)"
+	exit 1
+fi
+
+period=$1
+shift
+
+SAR="sar -ur $period > ~/sar.log"
+
+mkdir -p log
+
+for server in $*; do
+	if [ "$period" = "-stop" ]; then
+		set -x
+		ssh $server pkill -TERM sar
+		scp $server:sar.log log/cpu.$server
+		set +x
+	else
+		set -x
+		ssh $server rm -f ~/sar.log
+		ssh -f $server "$SAR"
+		set +x
+	fi
+done
+
