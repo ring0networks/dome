@@ -2,6 +2,15 @@
 # SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
 # SPDX-License-Identifier: GPL-2.0-only
 
+# benchmark duration
+MINUTES=3
+
+# number of processes
+CONCURRENT=$(($(nproc)*8))
+
+# connections per process
+CONN=256
+
 if [ $# -ne 1 ] && [ $# -ne 2 ]; then
 	printf "Usage: %s <ipaddr> [http/https]\n" "$(basename $0)" >&2
 	exit 1
@@ -12,18 +21,24 @@ server_addr="$1"
 mkdir -p ./log
 	
 benchmark_siege() {
-	siege -R ./etc/siege.conf -c 8 -r 100000 -q	\
-		--log=./log/$1.log "$1://$server_addr"	\
-	| tee -a log/$1.json
+	echo "Running siege..." >& 2
+	name="$1-$CONCURRENT-concurrent_$MINUTES-minutes"
+	siege -R ./etc/siege.conf -c $CONCURRENT -t ${MINUTES}m -q	\
+		--log=./log/$name.log "$1://$server_addr"	\
+	| tee -a log/$name.json
 }
 
 benchmark_ab() {
-	ab -k -n 800000 -c 256 "$1://$server_addr/" | tee -a log/$1.ab
+	echo "Running AB..." >& 2
+	name="$1-$CONCURRENT-concurrent_$MINUTES-minutes"
+	ab -c $CONCURRENT -k -t $(($MINUTES*60)) "$1://$server_addr/" | tee -a log/$name.ab
 }
 
 benchmark_wrk() {
-	wrk -c 256 -d 20m -t 1 -H "Connection: keep-alive" \
-		--latency "$1://$server_addr" | tee -a log/$1.wrk
+	echo "Running Wrk..." >& 2
+	name="$1-$CONCURRENT-concurrent_$MINUTES-minutes_$CONN-connections"
+	wrk -c $CONN -d ${MINUTES}m -t $CONCURRENT -H "Connection: keep-alive" \
+		--latency "$1://$server_addr" | tee -a log/$name.wrk
 }
 
 benchmark() {
