@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ -e ./log ]; then
+	printf "directory 'log' is already present.\nmaybe move it elsewhere?\n" >&2
+	exit 1
+fi
+
+./cpu 2 rnp-cli rnp-dome rnp-serv
+./run rnp-serv https
+./cpu -stop rnp-cli rnp-dome rnp-serv
+
