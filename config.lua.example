@@ -5,6 +5,6 @@ return {
 	notify_header = 'http,host=ring-0.io,location=rj ',
 	redirect_url = 'https://ring0networks.github.io/block.html',
 	allowlists = {},
-	blocklists = {}
+	blocklists = {'example'}
 }
 
