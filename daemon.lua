@@ -41,7 +41,10 @@ local function daemon()
 	print("[ring-0/dome] stopped")
 end
 
-runner.run("dome/filter", false):resume(inbox.queue, inbox.event)
+local runtimes = runner.percpu("dome/filter", false)
+for _, runtime in pairs(runtimes) do
+	runtime:resume(inbox.queue, inbox.event)
+end
 
 return daemon
 
