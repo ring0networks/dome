@@ -3,14 +3,11 @@
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
-local lunatik    = require("lunatik")
 local runner     = require("lunatik.runner")
 local thread     = require("thread")
-local socket     = require("socket")
 local inet       = require("socket.inet")
 local mailbox    = require("mailbox")
 local data       = require("data")
-local completion = require("completion")
 local config     = require("dome/config")
 local reply      = require("dome/reply")
 
