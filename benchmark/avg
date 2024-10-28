@@ -1,0 +1,16 @@
+#!/bin/sh
+
+average() {
+	name=$1
+	file=$2
+
+	avgsz=$(grep all $file | wc -l)
+	avgcpu=$(printf "100 - (0"; cat $file | grep all | awk '{print $8}' | xargs printf " + %s"; printf ")/$avgsz\n")
+	avgmem=$(printf "(0"; cat $file | grep -1 memused | awk '{print $5}' | grep -E '[0-9]' | xargs printf " + %s"; printf ")/$avgsz\n")
+
+	printf "$name %.1f%% cpu, %.1f%% mem\n" "$(echo $avgcpu | bc -l)" "$(echo $avgmem | bc -l)"
+}
+
+average client log/cpu.rnp-cli
+average dome log/cpu.rnp-dome
+average server log/cpu.rnp-serv
