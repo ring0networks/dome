@@ -99,7 +99,7 @@
             {
               "key": "action::field",
               "operator": "=",
-              "value": "block"
+              "value": "drop"
             }
           ]
         }
@@ -475,7 +475,7 @@
                 "value": [
                   {
                     "options": {
-                      "block": {
+                      "drop": {
                         "index": 0,
                         "text": "Bloqueios"
                       },
@@ -701,7 +701,7 @@
             {
               "key": "action::field",
               "operator": "=",
-              "value": "block"
+              "value": "drop"
             }
           ]
         }
@@ -813,7 +813,7 @@
             {
               "key": "action::field",
               "operator": "=",
-              "value": "block"
+              "value": "drop"
             }
           ]
         }
@@ -1397,7 +1397,7 @@
             {
               "key": "action::field",
               "operator": "=",
-              "value": "block"
+              "value": "drop"
             }
           ]
         }
