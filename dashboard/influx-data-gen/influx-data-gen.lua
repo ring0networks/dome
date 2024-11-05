@@ -6,7 +6,7 @@
 local socket = require("socket")
 local lfs = require("lfs")
 
-local header = 'https,host=ring-0.io,location=rj'
+local header = 'http,host=ring-0.io,location=rj'
 local flow = 100 -- ~ request/second  (max: 4000)
 
 math.randomseed(os.time())
