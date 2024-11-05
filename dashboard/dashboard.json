@@ -80,7 +80,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -186,7 +186,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -292,7 +292,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -398,7 +398,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -467,7 +467,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "https.action"
+              "options": "http.action"
             },
             "properties": [
               {
@@ -537,7 +537,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -573,7 +573,7 @@
                 ],
                 "operation": "groupby"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
@@ -608,7 +608,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "https.reason"
+              "options": "http.reason"
             },
             "properties": [
               {
@@ -682,7 +682,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -724,7 +724,7 @@
                 ],
                 "operation": "groupby"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
@@ -794,7 +794,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -836,7 +836,7 @@
                 ],
                 "operation": "groupby"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
@@ -889,7 +889,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "https.reason"
+              "options": "http.reason"
             },
             "properties": [
               {
@@ -963,7 +963,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -1005,7 +1005,7 @@
                 ],
                 "operation": "groupby"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
@@ -1040,7 +1040,7 @@
           {
             "matcher": {
               "id": "byName",
-              "options": "https.reason"
+              "options": "http.reason"
             },
             "properties": [
               {
@@ -1106,7 +1106,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -1148,7 +1148,7 @@
                 ],
                 "operation": "groupby"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
@@ -1218,7 +1218,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -1260,7 +1260,7 @@
                 ],
                 "operation": "groupby"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
@@ -1378,7 +1378,7 @@
             "uid": "ddr5io2xtwwzkb"
           },
           "groupBy": [],
-          "measurement": "https",
+          "measurement": "http",
           "orderByTime": "ASC",
           "policy": "default",
           "refId": "A",
@@ -1418,7 +1418,7 @@
                 ],
                 "operation": "aggregate"
               },
-              "https.domain": {
+              "http.domain": {
                 "aggregations": [
                   "count"
                 ],
