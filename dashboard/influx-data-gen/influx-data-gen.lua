@@ -12,7 +12,7 @@ local flow = 100 -- ~ request/second  (max: 4000)
 math.randomseed(os.time())
 
 function read_file_to_table(file_name)
-    local file <close> = io.open(file_name, "r")
+    local file = io.open(file_name, "r")
 
     if not file then
         print("Error opening the file: " .. file_name)
@@ -24,6 +24,7 @@ function read_file_to_table(file_name)
         table.insert(words_table, line)
     end
 
+    io.close(file)
     return words_table
 end
 
