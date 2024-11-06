@@ -75,7 +75,7 @@ local action = xdp.action
 
 local action_name = {}
 for name, action in pairs(action) do
-	action_name[action] = name
+	action_name[action] = string.lower(name)
 end
 
 local function argparse(argument)
