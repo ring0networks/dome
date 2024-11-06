@@ -2,7 +2,8 @@
 source ../grafana-influxdb-telegraf-prometheus/configuration.env
 
 DOME_BUCKET="dome"
-INFLUX_API_URL="http://localhost:8086/api/v2/write?org=$DOCKER_INFLUXDB_INIT_ORG&bucket=$DOME_BUCKET&precision=ns"
+INFLUX_HOSTNAME=${INFLUX_HOSTNAME="localhost"}
+INFLUX_API_URL="http://$INFLUX_HOSTNAME:8086/api/v2/write?org=$DOCKER_INFLUXDB_INIT_ORG&bucket=$DOME_BUCKET&precision=ns"
 INFLUX_USER_PASS="$DOCKER_INFLUXDB_INIT_USERNAME:$DOCKER_INFLUXDB_INIT_PASSWORD"
 
 while true
