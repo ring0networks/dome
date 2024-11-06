@@ -23,5 +23,5 @@ done
 
 # create example blocklist for dev purposes
 echo "return {
-[\"ebpf.io\"]=true,
+[\"hostname.com\"]=true,
 }" > ${dir}/example.lua
