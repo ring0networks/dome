@@ -42,7 +42,7 @@ function net.checksum(data, offset, length)
 	local _, u8, be16 = unpacker(data, offset)
 	local sum = 0
 
-	for pos = 0, length - 1, 2 do
+	for pos = 0, length - 2, 2 do
 		sum = sum + be16(pos)
 	end
 	if length % 2 == 1 then
