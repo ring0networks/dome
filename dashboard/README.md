@@ -25,6 +25,10 @@ sudo luarocks install luafilesystem
 
 ### Install the dashboard
 
+> [!TIP]
+> The dashboard comes into two different versions, Portuguese (`dashboard.json`), the default, and English (`dashboard_en.json`)
+> Make sure to replace `dashboard.json` with `dashboard_en.json` before installing it if you need to use the English version.
+
 From the current directory, execute:
 
 ```bash
