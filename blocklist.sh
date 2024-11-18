@@ -4,8 +4,9 @@
 
 url="https://blocklistproject.github.io/Lists/alt-version"
 dir="blocklist"
-lists="abuse ads crypto drugs facebook fraud gambling malware phishing\
-	piracy porn ransomware redirect scam tiktok torrent tracking"
+lists="abuse ads basic crypto drugs everything facebook fortnite fraud\
+	gambling malware phishing piracy porn ransomware redirect scam\
+	scam-tv tiktok torrent tracking twitter vaping whatsapp youtube"
 
 mkdir -p ${dir}
 for name in ${lists}; do
