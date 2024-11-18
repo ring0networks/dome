@@ -74,8 +74,8 @@ for action, _reason in pairs(lists) do
   end
 end
 
--- generates 2 times more random pass data
-for i=1,2 do
+-- generates 3 times more random pass data
+for i=1,2,3 do
   local action = "pass"
   for reason, domains in pairs(lists[action]) do
     for _, domain in ipairs(domains) do
