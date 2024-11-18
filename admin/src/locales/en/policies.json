@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "title": "Policies",
+    "categories": "Categories"
+  },
+  "categories": {
+    "base": "Categories",
+    "custom": "My categories",
+    "layout": {
+      "buttons": {
+        "create": "Create"
+      },
+      "header": {
+        "category": "Category",
+        "blocked": "Blocked"
+      },
+      "form": {
+        "name": "Name",
+        "description": "Description",
+        "blocked": "Blocked",
+        "domains": "Domains"
+      }
+    },
+    "update": {
+      "action": {
+        "save": "Save",
+        "success": "Category successfully updated",
+        "error": "Failed to update category"
+      }
+    },
+    "create": {
+      "action": {
+        "save": "Create",
+        "success": "Category successfully created",
+        "error": "Failed to create category",
+        "nameError": "A category with this name already exists"
+      },
+      "layout": {
+        "new": "New category"
+      }
+    }
+  }
+}

@@ -3,7 +3,9 @@
     "mainMenu": {
       "dashboard": "Dashboard",
       "repositories": "Repositories",
-      "management": "Management"
+      "management": "Management",
+      "policies": "Policies",
+      "users": "Users"
     },
     "accountMenu": {
       "version": {

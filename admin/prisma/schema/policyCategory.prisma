@@ -1,0 +1,10 @@
+model PolicyCategory {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String   @unique
+  blocked     Boolean
+  custom      Boolean
+  description String?
+  domains     String?
+}

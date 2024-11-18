@@ -1,0 +1,43 @@
+{
+  "nav": {
+    "title": "Políticas",
+    "categories": "Categorias"
+  },
+  "categories": {
+    "base": "Categorias",
+    "custom": "Minhas categorias",
+    "layout": {
+      "buttons": {
+        "create": "Criar"
+      },
+      "header": {
+        "category": "Categoria",
+        "blocked": "Bloqueado"
+      },
+      "form": {
+        "name": "Nome",
+        "description": "Descrição",
+        "blocked": "Bloqueado",
+        "domains": "Domínios"
+      }
+    },
+    "update": {
+      "action": {
+        "save": "Salvar",
+        "success": "Categoria atualizada com sucesso",
+        "error": "Falha ao atualizar categoria"
+      }
+    },
+    "create": {
+      "action": {
+        "save": "Criar",
+        "success": "Categoria criada com sucesso",
+        "error": "Falha ao criar categoria",
+        "nameError": "Já existe uma categoria com esse nome"
+      },
+      "layout": {
+        "new": "Nova categoria"
+      }
+    }
+  }
+}

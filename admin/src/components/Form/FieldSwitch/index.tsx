@@ -11,7 +11,7 @@ import {
 import { FieldCommonProps } from '../FormFieldController';
 import { FormFieldError } from '../FormFieldError';
 
-type SwitchRootProps = Pick<SwitchProps, 'size'>;
+type SwitchRootProps = Pick<SwitchProps, 'size' | 'colorScheme' | 'sx' >;
 
 export type FieldSwitchProps<
   TFieldValues extends FieldValues = FieldValues,
@@ -47,6 +47,8 @@ export const FieldSwitch = <
             size={props.size}
             isChecked={!!value}
             isDisabled={props.isDisabled}
+            colorScheme={props.colorScheme}
+            sx={props.sx}
             {...props.switchProps}
             {...field}
           >

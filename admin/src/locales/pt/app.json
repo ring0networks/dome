@@ -1,0 +1,9 @@
+{
+  "layout": {
+    "mainMenu": {
+      "home": "Início",
+      "repositories": "Repositórios",
+      "account": "Conta"
+    }
+  }
+}

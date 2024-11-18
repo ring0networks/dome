@@ -1,4 +1,5 @@
 import React from 'react';
+import { ROUTES_POLICY_CATEGORIES } from "@/features/policyCategories/routes";
 
 import {
   Avatar,
@@ -53,7 +54,6 @@ import { ROUTES_APP } from '@/features/app/routes';
 import { ROUTES_AUTH } from '@/features/auth/routes';
 import { ROUTES_DOCS } from '@/features/docs/routes';
 import { ROUTES_MANAGEMENT } from '@/features/management/routes';
-import { ROUTES_REPOSITORIES } from '@/features/repositories/routes';
 import { useRtl } from '@/hooks/useRtl';
 import { trpc } from '@/lib/trpc/client';
 
@@ -66,11 +66,11 @@ const AdminNavBarMainMenu = ({ ...rest }: StackProps) => {
       <AdminNavBarMainMenuItem href={ROUTES_ADMIN_DASHBOARD.admin.root()}>
         {t('admin:layout.mainMenu.dashboard')}
       </AdminNavBarMainMenuItem>
-      <AdminNavBarMainMenuItem href={ROUTES_REPOSITORIES.admin.root()}>
-        {t('admin:layout.mainMenu.repositories')}
+      <AdminNavBarMainMenuItem href={ROUTES_POLICY_CATEGORIES.admin.root()}>
+        {t('admin:layout.mainMenu.policies')}
       </AdminNavBarMainMenuItem>
       <AdminNavBarMainMenuItem href={ROUTES_MANAGEMENT.admin.root()}>
-        {t('admin:layout.mainMenu.management')}
+        {t('admin:layout.mainMenu.users')}
       </AdminNavBarMainMenuItem>
     </Stack>
   );

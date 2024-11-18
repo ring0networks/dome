@@ -40,6 +40,7 @@ export async function createUsers() {
         email: 'admin@admin.com',
         authorizations: ['APP', 'ADMIN'],
         accountStatus: 'ENABLED',
+        language: "pt"
       },
     });
     createdCounter += 1;

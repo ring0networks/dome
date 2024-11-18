@@ -1,0 +1,24 @@
+{
+  "layout": {
+    "mainMenu": {
+      "dashboard": "Painel",
+      "repositories": "Repositórios",
+      "management": "Gerenciamento",
+      "policies": "Políticas",
+      "users": "Usuários"
+    },
+    "accountMenu": {
+      "version": {
+        "copied": "Versão copiada",
+        "copy": "Copiar versão",
+        "label": "Versão"
+      },
+      "apiDocs": "Documentação da API",
+      "openApp": "Abrir Aplicativo",
+      "switchColorModeDark": "Alternar para o Modo Escuro",
+      "switchColorModeLight": "Alternar para o Modo Claro",
+      "myAccount": "Minha Conta",
+      "logout": "Sair"
+    }
+  }
+}

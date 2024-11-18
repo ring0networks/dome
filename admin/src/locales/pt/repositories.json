@@ -1,0 +1,70 @@
+{
+  "list": {
+    "title": "Repositórios",
+    "empty": "Nenhum repositório",
+    "actions": {
+      "createRepository": "Criar Repositório",
+      "view": "Visualizar"
+    },
+    "loadMore": {
+      "button": "Carregar mais",
+      "display": "Mostrando {{loaded}} de {{total}} repositórios"
+    }
+  },
+  "deleteModal": {
+    "title": "Confirmar exclusão do repositório",
+    "message": "Você gostaria de excluir \"{{name}}\"? A exclusão será permanente."
+  },
+  "feedbacks": {
+    "deleteRepositoryError": {
+      "title": "Falha na exclusão",
+      "description": "Falha ao remover o repositório"
+    },
+    "loadingRepositoryError": {
+      "title": "Falha ao carregar repositórios"
+    }
+  },
+  "data": {
+    "name": {
+      "label": "Nome",
+      "required": "Nome é obrigatório",
+      "alreadyUsed": "Nome já está em uso"
+    },
+    "link": {
+      "label": "Link",
+      "required": "Link é obrigatório",
+      "tooSmall": "Link inválido, deve ter pelo menos {{min}} caracteres",
+      "missingDot": "Link inválido, deve conter pelo menos um ponto"
+    },
+    "description": {
+      "label": "Descrição"
+    }
+  },
+  "update": {
+    "action": {
+      "save": "Salvar"
+    },
+    "feedbacks": {
+      "updateError": {
+        "title": "Falha na atualização"
+      },
+      "updateSuccess": {
+        "title": "Atualizado com sucesso"
+      }
+    }
+  },
+  "create": {
+    "feedbacks": {
+      "updateError": {
+        "title": "Falha na criação"
+      },
+      "updateSuccess": {
+        "title": "Repositório criado com sucesso"
+      }
+    },
+    "action": {
+      "save": "Criar"
+    },
+    "title": "Novo Repositório"
+  }
+}

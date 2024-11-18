@@ -1,0 +1,101 @@
+{
+  "you": "você",
+  "list": {
+    "title": "Gerenciamento de Usuários",
+    "status": "Status",
+    "actions": {
+      "createUser": "Criar Usuário"
+    },
+    "loadMore": {
+      "button": "Carregar mais",
+      "display": "Mostrando {{loaded}} de {{total}} usuários"
+    }
+  },
+  "deleteModal": {
+    "title": "Confirmar exclusão do usuário",
+    "message": "Você gostaria de excluir \"{{name}}\"? A exclusão será permanente."
+  },
+  "feedbacks": {
+    "activateUserSuccess": {
+      "title": "Usuário Ativado",
+      "description": "Usuário \"{{login}}\" ativado com sucesso"
+    },
+    "deactivateUserSuccess": {
+      "title": "Usuário Desativado",
+      "description": "Usuário \"{{login}}\" desativado com sucesso"
+    },
+    "activateUserError": {
+      "title": "Falha na Ativação",
+      "description": "Falha ao ativar o usuário \"{{login}}\""
+    },
+    "deactivateUserError": {
+      "title": "Falha na Desativação",
+      "description": "Falha ao desativar o usuário \"{{login}}\""
+    },
+    "deleteUserError": {
+      "title": "Falha na Exclusão",
+      "description": "Falha ao remover o usuário \"{{login}}\""
+    },
+    "loadingUserError": {
+      "title": "Falha ao carregar usuários"
+    }
+  },
+  "data": {
+    "email": {
+      "label": "Email",
+      "alreadyUsed": "Email já está em uso",
+      "required": "Email é obrigatório",
+      "invalid": "Email é inválido"
+    },
+    "authorizations": {
+      "label": "Autorizações",
+      "required": "Pelo menos uma autorização é necessária",
+      "options": {
+        "APP": "Aplicativo",
+        "ADMIN": "Administrador"
+      }
+    },
+    "createdAt": {
+      "ago": "Criado <dateAgo />"
+    },
+    "status": {
+      "activated": "Ativado",
+      "deactivated": "Não Ativado"
+    },
+    "name": {
+      "label": "Nome",
+      "required": "Nome é obrigatório",
+      "invalid": "Nome é inválido"
+    },
+    "language": {
+      "label": "Idioma"
+    }
+  },
+  "update": {
+    "action": {
+      "save": "Salvar"
+    },
+    "feedbacks": {
+      "updateError": {
+        "title": "Falha na atualização"
+      },
+      "updateSuccess": {
+        "title": "Atualizado com sucesso"
+      }
+    }
+  },
+  "create": {
+    "feedbacks": {
+      "updateError": {
+        "title": "Falha na criação"
+      },
+      "updateSuccess": {
+        "title": "Usuário criado com sucesso"
+      }
+    },
+    "action": {
+      "save": "Criar"
+    },
+    "title": "Novo Usuário"
+  }
+}

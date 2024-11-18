@@ -1,0 +1,12 @@
+{
+  "welcome": {
+    "title": "Bem-vindo ao 🚀 Start UI [web]",
+    "description": "Um starter de UI com opinião usando React, Chakra UI, React Query & React Hook Form",
+    "author": "— Da <strong>Equipe BearStudio</strong>"
+  },
+  "links": {
+    "github": "Repositório no GitHub",
+    "openIssue": "Abrir Problema",
+    "documentation": "Documentação"
+  }
+}

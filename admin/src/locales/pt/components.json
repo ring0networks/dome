@@ -1,0 +1,100 @@
+{
+  "datalist": {
+    "retry": "Tentar novamente",
+    "errorTitle": "Algo deu errado",
+    "emptyTitle": "Sem dados",
+    "noResultsTitle": "Nenhum resultado para \"{{searchTerm}}\""
+  },
+  "dateAgo": {
+    "format": "dddd, DD MMMM YYYY, hh:mm a"
+  },
+  "actionsButton": {
+    "label": "Ações"
+  },
+  "confirmMenuItem": {
+    "confirmText": "Clique para confirmar"
+  },
+  "confirmModal": {
+    "confirmText": "Confirmar",
+    "heading": "Você tem certeza?"
+  },
+  "confirmPopover": {
+    "confirmText": "Confirmar",
+    "heading": "Você tem certeza?"
+  },
+  "errorBoundary": {
+    "title": "Ocorreu um erro inesperado.",
+    "actions": {
+      "expand": "Mostrar detalhes"
+    }
+  },
+  "errorPage": {
+    "403": {
+      "title": "Não autorizado",
+      "description": "Desculpe, você não pode acessar esta página."
+    },
+    "404": {
+      "title": "Página não encontrada",
+      "description": "A página não existe ou a URL foi alterada."
+    },
+    "errorCode": "Erro {{code}}",
+    "default": {
+      "title": "Erro",
+      "description": "Algo deu errado 😞"
+    }
+  },
+  "pagination": {
+    "showing": "<box>Mostrando</box> <strong>{{firstItemOnPage}}</strong> <span>a</span> <strong>{{lastItemOnPage}}</strong> <span>de</span> <strong>{{totalItems}}</strong> <box>resultados</box>",
+    "loading": "<spinner></spinner> <box>Carregando</box> <strong>{{firstItemOnPage}}</strong> <span>a</span> <strong>{{lastItemOnPage}}</strong> <span>de</span> <strong>{{totalItems}}</strong> <box>resultados</box>",
+    "firstPage": "Primeira Página",
+    "prevPage": "Página Anterior",
+    "lastPage": "Última Página",
+    "nextPage": "Próxima Página"
+  },
+  "searchInput": {
+    "placeholder": "Buscar...",
+    "clear": "Limpar busca"
+  },
+  "formField": {
+    "optional": "Opcional"
+  },
+  "fieldDayPicker": {
+    "invalidMessage": "Data inválida"
+  },
+  "fieldMultiSelect": {
+    "noOption": "Nenhuma opção"
+  },
+  "sort": {
+    "sortAscending": "Crescente",
+    "sortDescending": "Decrescente",
+    "sortBy": "Ordenar por",
+    "order": "Ordem"
+  },
+  "dayPicker": {
+    "today": "Hoje"
+  },
+  "monthPicker": {
+    "today": "Hoje",
+    "months": {
+      "january": "Janeiro",
+      "february": "Fevereiro",
+      "march": "Março",
+      "april": "Abril",
+      "may": "Maio",
+      "june": "Junho",
+      "july": "Julho",
+      "august": "Agosto",
+      "september": "Setembro",
+      "october": "Outubro",
+      "november": "Novembro",
+      "december": "Dezembro"
+    }
+  },
+  "fieldPassword": {
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
+  },
+  "toast": {
+    "closeToast": "Fechar mensagem"
+  }
+}

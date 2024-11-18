@@ -4,6 +4,7 @@ import { authRouter } from '@/server/routers/auth';
 import { oauthRouter } from '@/server/routers/oauth';
 import { repositoriesRouter } from '@/server/routers/repositories';
 import { usersRouter } from '@/server/routers/users';
+import { policyCategoriesRouter } from '@/server/routers/policyCategories';
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
   oauth: oauthRouter,
   repositories: repositoriesRouter,
   users: usersRouter,
+  policyCategories: policyCategoriesRouter,
 });
 
 // export type definition of API

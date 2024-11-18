@@ -1,0 +1,83 @@
+{
+  "title": "Conta",
+  "nav": {
+    "profile": "Perfil",
+    "email": "Email",
+    "myAccount": "Minha Conta"
+  },
+  "admin": {
+    "title": "Usuário Administrador",
+    "button": "Abrir Administração"
+  },
+  "profile": {
+    "title": "Informações do Perfil",
+    "feedbacks": {
+      "updateSuccess": {
+        "title": "Perfil atualizado"
+      },
+      "updateError": {
+        "title": "Falha na atualização"
+      }
+    },
+    "actions": {
+      "update": "Atualizar"
+    }
+  },
+  "email": {
+    "title": "Atualizar seu email",
+    "feedbacks": {
+      "updateSuccess": {
+        "title": "Email atualizado"
+      },
+      "updateError": {
+        "title": "Falha na atualização"
+      }
+    },
+    "actions": {
+      "update": "Atualizar"
+    }
+  },
+  "preferences": {
+    "title": "Preferências",
+    "theme": {
+      "dark": "Modo escuro",
+      "light": "Modo claro"
+    }
+  },
+  "logout": {
+    "button": "Sair",
+    "confirm": {
+      "title": "Encerrar sessão",
+      "message": "Você está prestes a encerrar sua sessão",
+      "button": "Sair"
+    }
+  },
+  "deleteAccount": {
+    "button": "Excluir minha conta",
+    "confirm": {
+      "title": "Excluir minha conta",
+      "message": "Você está prestes a excluir sua conta. Isso será permanente, tenha certeza do que está fazendo.",
+      "button": "Excluir minha conta"
+    },
+    "validate": {
+      "button": "Excluir minha conta"
+    },
+    "feedbacks": {
+      "updateError": {
+        "title": "Algo deu errado"
+      }
+    }
+  },
+  "data": {
+    "name": {
+      "label": "Nome"
+    },
+    "email": {
+      "label": "Email",
+      "current": "Este é seu email atual"
+    },
+    "language": {
+      "label": "Idioma"
+    }
+  }
+}

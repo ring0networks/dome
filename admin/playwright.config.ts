@@ -49,5 +49,6 @@ export default defineConfig({
     command: 'pnpm dev',
     url: process.env.NEXT_PUBLIC_BASE_URL,
     reuseExistingServer: !process.env.CI,
+    port: 3001
   },
 });

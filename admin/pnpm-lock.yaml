@@ -80,6 +80,12 @@ importers:
       bcrypt:
         specifier: 5.1.1
         version: 5.1.1(encoding@0.1.13)
+      capitalize:
+        specifier: ^2.0.4
+        version: 2.0.4
+      captalize:
+        specifier: ^1.0.3
+        version: 1.0.3
       chakra-react-select:
         specifier: 4.9.1
         version: 4.9.1(jg2uf7jai25oxrvhvqjn25d64i)
@@ -4985,6 +4991,12 @@ packages:
 
   caniuse-lite@1.0.30001620:
     resolution: {integrity: sha512-WJvYsOjd1/BYUY6SNGUosK9DUidBPDTnOARHp3fSmFO1ekdxaY6nKRttEVrfMmYi80ctS0kz1wiWmm14fVc3ew==}
+
+  capitalize@2.0.4:
+    resolution: {integrity: sha512-wcSyiFqXRYyCoqu0o0ekXzJAKCLMkqWS5QWGlgTJFJKwRmI6pzcN2hBl5VPq9RzLW5Uf4FF/V/lcFfjCtVak2w==}
+
+  captalize@1.0.3:
+    resolution: {integrity: sha512-CBrvTgEJrt9Bc5Murs3upwBULGlQNnH1zcvPWMBpqGKAZu8lofxnNYdAtcuvZfs+7eiUC16cClFpfEzONJwblA==}
 
   case-sensitive-paths-webpack-plugin@2.4.0:
     resolution: {integrity: sha512-roIFONhcxog0JSSWbvVAh3OocukmSgpqOH6YpMkCvav/ySIV3JKg4Dc8vYtQjYi/UxpNE36r/9v+VqTQqgkYmw==}
@@ -16225,6 +16237,10 @@ snapshots:
   camelcase@6.3.0: {}
 
   caniuse-lite@1.0.30001620: {}
+
+  capitalize@2.0.4: {}
+
+  captalize@1.0.3: {}
 
   case-sensitive-paths-webpack-plugin@2.4.0: {}
 

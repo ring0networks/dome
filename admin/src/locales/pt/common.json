@@ -1,0 +1,27 @@
+{
+  "languages": {
+    "en": "Inglês",
+    "fr": "Francês",
+    "ar": "Árabe",
+    "sw": "Suaíli",
+    "pt": "Português"
+  },
+  "actions": {
+    "back": "Voltar",
+    "activate": "Ativar",
+    "cancel": "Cancelar",
+    "deactivate": "Desativar",
+    "delete": "Excluir",
+    "edit": "Editar"
+  },
+  "or": "ou",
+  "confirmDiscardChanges": {
+    "title": "Sair da página?",
+    "message": "Você está prestes a sair da página sem salvar suas alterações.",
+    "confirmText": "Sair sem salvar",
+    "cancelText": "Permanecer na página"
+  },
+  "filter": "Filtrar",
+  "clear": "Limpar",
+  "submit": "Enviar"
+}
