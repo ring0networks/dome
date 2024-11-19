@@ -1,3 +1,17 @@
+diff --git a/docker-compose.yml b/docker-compose.yml
+index f1ff3ed..dd9deef 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -76,6 +76,9 @@ services:
+     container_name: grafana
+     ports:
+       - "3000:3000"
++    environment:
++      - GF_SECURITY_ALLOW_EMBEDDING=true
++      - GF_SECURITY_CONTENT_SECURITY_POLICY=false
+     networks:
+       - public
+       - private
 diff --git a/grafana/datasources/datasources.yaml b/grafana/datasources/datasources.yaml
 index e6bdb7c..2e81370 100644
 --- a/grafana/datasources/datasources.yaml

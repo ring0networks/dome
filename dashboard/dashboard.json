@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 5,
   "links": [],
   "panels": [
     {
@@ -78,7 +78,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 1
       },
@@ -198,8 +198,8 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 1
       },
       "id": 17,
@@ -220,7 +220,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -306,8 +306,8 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
-        "x": 10,
+        "w": 6,
+        "x": 12,
         "y": 1
       },
       "id": 8,
@@ -328,7 +328,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -413,8 +413,8 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
-        "x": 15,
+        "w": 6,
+        "x": 18,
         "y": 1
       },
       "id": 9,
@@ -435,7 +435,7 @@
         "textMode": "value",
         "wideLayout": true
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -560,7 +560,7 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 9
       },
@@ -682,8 +682,8 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 15,
-        "x": 5,
+        "w": 18,
+        "x": 6,
         "y": 9
       },
       "id": 2,
@@ -710,7 +710,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -846,7 +846,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 20,
+        "w": 24,
         "x": 0,
         "y": 19
       },
@@ -867,6 +867,7 @@
         "showValue": "auto",
         "stacking": "none",
         "tooltip": {
+          "maxHeight": 600,
           "mode": "single",
           "sort": "none"
         },
@@ -1000,7 +1001,7 @@
       },
       "gridPos": {
         "h": 11,
-        "w": 5,
+        "w": 6,
         "x": 0,
         "y": 24
       },
@@ -1157,8 +1158,8 @@
       },
       "gridPos": {
         "h": 11,
-        "w": 5,
-        "x": 5,
+        "w": 6,
+        "x": 6,
         "y": 24
       },
       "id": 16,
@@ -1281,8 +1282,8 @@
       },
       "gridPos": {
         "h": 11,
-        "w": 10,
-        "x": 10,
+        "w": 12,
+        "x": 12,
         "y": 24
       },
       "id": 1,
@@ -1309,7 +1310,7 @@
         "text": {},
         "valueMode": "color"
       },
-      "pluginVersion": "11.3.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
@@ -1390,8 +1391,8 @@
       "type": "bargauge"
     }
   ],
-  "preload": false,
-  "schemaVersion": 40,
+  "refresh": "5s",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": []
@@ -1400,6 +1401,7 @@
     "from": "now-1h",
     "to": "now"
   },
+  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "ring-0 d0me",
