@@ -3,10 +3,11 @@
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
-local xdp     = require("xdp")
 local mailbox = require("mailbox")
 local pack    = require("dome/pack")
 local config  = require("dome/config")
+local nf      = require("netfilter")
+local linux   = require("linux")
 
 local unpacker = pack.unpacker
 
@@ -27,9 +28,9 @@ end
 local allowlists = loadlists(config.allowlists)
 local blocklists = loadlists(config.blocklists)
 
-local function hostname(packet, offset, length)
+local function hostname(packet, offset)
 	local str = unpacker(packet, offset)
-	local request = str(0, length)
+	local request = str(0)
 	return string.match(request, "Host:%s(.-)\r\n")
 end
 
@@ -71,7 +72,7 @@ local reply = {
 	[443] = "reset"
 }
 
-local action = xdp.action
+local action = nf.action
 
 local action_name = {}
 for name, action in pairs(action) do
@@ -93,31 +94,53 @@ local function match(lists, domain, action)
 	end
 end
 
-local function filter(outbox)
-	return function (packet, argument)
-		local dport, offset, length, allow = argparse(argument)
-		local parser = parsers[dport]
+local ETH_HLEN  = 14
+local IPPROTO_TCP = 0x06
 
+local function filter(outbox)
+	return function (packet)
+
+		local allow = action.CONTINUE
+		local policy = config.policy == "allow" and allow or action.DROP
+
+		local ihl = packet:getbyte(ETH_HLEN) & 0x0F
+		local thoff = ihl * 4
+		local proto = packet:getbyte(ETH_HLEN + 9)
+		local doff = ((packet:getbyte(ETH_HLEN + thoff + 12) >> 4) & 0x0F) * 4
+		local dport = linux.ntoh16(packet:getuint16(ETH_HLEN + thoff + 2))
+
+		local offset = ETH_HLEN + thoff + doff
+		if offset >= #packet then
+			return allow
+		end
+
+		if proto ~= IPPROTO_TCP then
+			return allow
+		end
+
+		local parser = parsers[dport]
 		if not parser then
 			log("filter was not found (dport = %d)", dport)
-		else
-			local policy = config.policy == "allow" and allow or action.DROP
-			local verdict = {reason = "default", action = policy}
-			local domain  = parser(packet, offset, length)
-			if domain then
-				verdict = match(allowlists, domain, allow) or
-					match(blocklists, domain, action.DROP) or verdict
-
-				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
-					domain, dport, action_name[verdict.action], verdict.reason)
-				outbox.notify(message)
-
-				if verdict.action == action.DROP then
-					outbox.reply(reply[dport] .. "|" .. tostring(packet))
-				end
-			end
-			return verdict.action
+			return allow
 		end
+
+		local verdict = {reason = "default", action = policy}
+		local domain  = parser(packet, offset)
+
+		if domain then
+			verdict = match(allowlists, domain, allow) or
+			match(blocklists, domain, action.DROP) or verdict
+
+			local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
+					       domain, dport, action_name[verdict.action], verdict.reason)
+			outbox.notify(message)
+
+			if verdict.action == action.DROP then
+				outbox.reply(reply[dport] .. "|" .. tostring(packet))
+			end
+		end
+
+		return verdict.action
 	end
 end
 
@@ -138,7 +161,13 @@ local function attacher(queue, event)
 		reply = sender("reply", queue, event)
 	}
 
-	xdp.attach(filter(outbox))
+	nf.register{
+		pf = nf.family.INET,
+		hooknum = nf.inet_hooks.FORWARD,
+		priority = nf.ip_priority.LAST,
+		hook = filter(outbox),
+	}
+
 	log("filter attached")
 end
 
