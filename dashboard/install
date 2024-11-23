@@ -1,5 +1,0 @@
-#!/bin/bash
-git clone https://github.com/pablos4nt0s/grafana-influxdb-telegraf-prometheus.git
-cp dashboard.json grafana-influxdb-telegraf-prometheus/grafana/dashboards/ring0-dashboard.json
-cd grafana-influxdb-telegraf-prometheus
-git apply ../grafana.patch
