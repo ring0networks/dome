@@ -3,9 +3,9 @@
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
-local xdp     = require("xdp")
 local mailbox = require("mailbox")
 local pack    = require("dome/pack")
+local hook    = require("dome/hook")
 local config  = require("dome/config")
 
 local unpacker = pack.unpacker
@@ -71,19 +71,6 @@ local reply = {
 	[443] = "reset"
 }
 
-local action = xdp.action
-
-local action_name = {}
-for name, action in pairs(action) do
-	action_name[action] = string.lower(name)
-end
-
-local function argparse(argument)
-	return argument:getuint16(0),
-		argument:getuint16(2),
-		argument:getuint8(4)
-end
-
 local function match(lists, domain, action)
 	for reason, list in pairs(lists) do
 		if list[domain] then
@@ -92,32 +79,30 @@ local function match(lists, domain, action)
 	end
 end
 
-local function filter(outbox)
-	return function (packet, argument)
-		local dport, offset, length, allow = argparse(argument)
-		local parser = parsers[dport]
+local function filter(packet, offset, dport, allow, deny, outbox)
+	local policy = config.policy == "allow" and allow or deny
+	local verdict = {reason = "default", action = policy}
 
-		if not parser then
-			log("filter was not found (dport = %d)", dport)
-		else
-			local policy = config.policy == "allow" and allow or action.DROP
-			local verdict = {reason = "default", action = policy}
-			local domain  = parser(packet, offset, length)
-			if domain then
-				verdict = match(allowlists, domain, allow) or
-					match(blocklists, domain, action.DROP) or verdict
+	local parser = parsers[dport]
+	if not parser then
+		log("filter was not found (dport = %d)", dport)
+	else
+		local domain  = parser(packet, offset)
+		if domain then
+			verdict = match(allowlists, domain, allow) or
+				match(blocklists, domain, deny) or verdict
 
-				local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
-					domain, dport, action_name[verdict.action], verdict.reason)
-				outbox.notify(message)
+			local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
+				domain, dport, hook.action_name[verdict.action], verdict.reason)
+			outbox.notify(message)
 
-				if verdict.action == action.DROP then
-					outbox.reply(reply[dport] .. "|" .. tostring(packet))
-				end
+			if verdict.action == deny then
+				outbox.reply(reply[dport] .. "|" .. tostring(packet))
 			end
-			return verdict.action
 		end
 	end
+
+	return verdict.action
 end
 
 local function sender(channel, queue, event)
@@ -137,8 +122,9 @@ local function attacher(queue, event)
 		reply = sender("reply", queue, event)
 	}
 
-	xdp.attach(filter(outbox))
-	log("filter attached")
+	hook.attach(outbox, filter)
+
+	log("filter attached: %s", config.filter)
 end
 
 log("filter loaded")
