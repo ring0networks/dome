@@ -27,9 +27,9 @@ end
 local allowlists = loadlists(config.allowlists)
 local blocklists = loadlists(config.blocklists)
 
-local function hostname(packet, offset, length)
+local function hostname(packet, offset)
 	local str = unpacker(packet, offset)
-	local request = str(0, length)
+	local request = str(0)
 	return string.match(request, "Host:%s(.-)\r\n")
 end
 
@@ -81,8 +81,7 @@ end
 local function argparse(argument)
 	return argument:getuint16(0),
 		argument:getuint16(2),
-		argument:getuint16(4),
-		argument:getuint8(6)
+		argument:getuint8(4)
 end
 
 local function match(lists, domain, action)
