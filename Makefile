@@ -2,9 +2,12 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 INSTALL_PATH = /lib/modules/lua/dome
+CP = cp -rp
 RM = rm -f
 MKDIR = mkdir -p -m 0755
 INSTALL = install -o root -g root
+
+DOME_MODULES = hook
 
 EBPF_FILTERS = filter
 EBPF_FILTERS_OBJS = ${EBPF_FILTERS:=.o}
@@ -27,6 +30,7 @@ install: config.lua blocklist
 	${MKDIR} ${INSTALL_PATH}
 	${INSTALL} -m 0644 *.lua ${INSTALL_PATH}/
 	${INSTALL} -m 0644 blocklist/*.lua ${INSTALL_PATH}/
+	${CP} ${DOME_MODULES} ${INSTALL_PATH}
 
 uninstall:
 	${RM} -r ${INSTALL_PATH}

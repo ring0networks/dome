@@ -1,4 +1,5 @@
 return {
+	filter = 'xdp', -- xdp/netfilter
 	policy = 'allow', -- allow/block
 	iface = 'eth0',
 	mailbox_max = 100 * 1024,
