@@ -18,7 +18,6 @@ static char runtime[] = "dome/filter";
 struct bpf_luaxdp_arg {
 	__u16 dport;
 	__u16 offset;
-	__u16 length;
 	__u8 allow;
 } __attribute__((packed));
 
@@ -73,7 +72,6 @@ int filter(struct xdp_md *ctx)
 
 	arg.dport = dport;
 	arg.offset = (__u16)(payload - data);
-	arg.length = (__u16)(data_end - payload);
 	arg.allow = DOME_ALLOW;
 
 	int action = bpf_luaxdp_run(runtime, sizeof(runtime), ctx, &arg, sizeof(arg));
