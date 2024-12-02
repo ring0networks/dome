@@ -120,13 +120,13 @@ local function filter(outbox)
 	end
 end
 
-local function sender(action, queue, event)
+local function sender(channel, queue, event)
 	local outbox = mailbox.outbox(queue, event)
 
 	return function (message)
-		local ok, err = pcall(outbox.send, outbox, action .. '|' .. message)
+		local ok, err = pcall(outbox.send, outbox, channel .. '|' .. message)
 		if not ok then
-			log("failed to %s: %s", action, err)
+			log("failed to %s: %s", channel, err)
 		end
 	end
 end
