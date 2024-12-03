@@ -21,15 +21,15 @@ struct bpf_luaxdp_arg {
 	__u8 allow;
 } __attribute__((packed));
 
-#ifdef DOME_CONFIG_ROUTER
-#define DOME_ALLOW     XDP_PASS
-#else
+#ifdef DOME_CONFIG_BRIDGE
 #define DOME_ALLOW     XDP_TX
+#else
+#define DOME_ALLOW     XDP_PASS
 #endif
 
 static inline int allow(void *data)
 {
-#ifndef DOME_CONFIG_ROUTER
+#ifdef DOME_CONFIG_BRIDGE
 	unsigned char tmp[ETH_ALEN];
 	struct ethhdr *eth = data;
 
