@@ -32,7 +32,7 @@ cd dome
   make
   ```
 
->[!INFO]
+>[!NOTE]
 >This mode uses `XDP_PASS` to let the packet continue moving through the TCP stack, enabling deeper packet processing.
 
 ## Basic Usage
@@ -63,7 +63,7 @@ To run the `dome` project in Router Mode using a virtual interface, follow these
 
    This stops the running instance of `dome` and cleans up resources.
 
->[!INFO]
+>[!IMPORTANT]
 >Ensure that all prerequisites for the project are met and that you have sufficient permissions to run these commands on your system.
 
 ## Configuration
