@@ -1,8 +1,11 @@
+<!-- markdownlint-disable MD013 -->
 # ring-0 d0me
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/ring0networks/dome)
 
-ring-0 d0me is a secure web gateway designed to enhance network security and filtering capabilities. With its extensibility powered by Lua scripting, it allows tailored configurations to meet diverse requirements. It offers flexible deployment options, operating either through XDP or Netfilter, depending on your configuration.
+ring-0 d0me is a secure web gateway designed to enhance network security and filtering capabilities.
+With its extensibility powered by Lua scripting, it allows tailored configurations to meet diverse requirements.
+It offers flexible deployment options, operating either through XDP or Netfilter, depending on your configuration.
 
 ## Features
 
@@ -15,6 +18,7 @@ ring-0 d0me is a secure web gateway designed to enhance network security and fil
 ## Getting Started
 
 ### Clone the Repository
+
 ```bash
 git clone https://github.com/ring0networks/dome.git
 cd dome
@@ -22,50 +26,61 @@ cd dome
 
 ### Compilation Options for XDP Filter
 
-- **Router Mode** (Default):
+#### **Router Mode** (Default)
+
   ```bash
   make
   ```
-  - This mode uses `XDP_PASS` to let the packet continue moving through the TCP stack, enabling deeper packet processing.
+
+>[!INFO]
+>This mode uses `XDP_PASS` to let the packet continue moving through the TCP stack, enabling deeper packet processing.
 
 ## Basic Usage
 
 To run the `dome` project in Router Mode using a virtual interface, follow these steps:
 
 1. **Set up the network namespace and virtual interface:**
+
    ```bash
    make namespace
    ```
+
    This step executes the `namespace.sh` script to create the necessary network namespace and virtual interface.
 
 2. **Run the project:**
+
    ```bash
    make run
    ```
+
    This starts the `dome` project in Router Mode, utilizing the virtual interface created in the previous step.
 
 3. **Stop the project:**
+
    ```bash
    make stop
    ```
+
    This stops the running instance of `dome` and cleans up resources.
 
-> **Note:** Ensure that all prerequisites for the project are met and that you have sufficient permissions to run these commands on your system.
+>[!INFO]
+>Ensure that all prerequisites for the project are met and that you have sufficient permissions to run these commands on your system.
 
 ## Configuration
 
-ring-0 d0me utilizes a Lua configuration file. Here is an example:
+ring-0 d0me utilizes a Lua configuration file.
+Here is an example:
 
 ```lua
 return {
-	filter = 'xdp', -- xdp/netfilter
-	policy = 'allow', -- allow/block
-	iface = 'eth1', -- used with xdp only
-	mailbox_max = 100 * 1024,
-	notify_header = 'http,host=ring-0.io,location=rj ',
-	redirect_url = 'https://www.ring0networks.com.br/br/block?',
-	allowlists = {},
-	blocklists = {'example'}
+  filter = 'xdp', -- xdp/netfilter
+  policy = 'allow', -- allow/block
+  iface = 'eth1', -- used with xdp only
+  mailbox_max = 100 * 1024,
+  notify_header = 'http,host=ring-0.io,location=rj ',
+  redirect_url = 'https://www.ring0networks.com.br/br/block?',
+  allowlists = {},
+  blocklists = {'example'}
 }
 ```
 
@@ -74,9 +89,9 @@ return {
   ```bash
   make bridge
   ```
+
   - This mode is intended to immediately return the packet using `XDP_TX`, swapping the Ethernet source and destination addresses before re-transmitting it.
   - When running in bridge mode, it is common to use the BPF module located in the `redirect` directory, in conjuntion with the usual `filter` module. For detailed instructions, please refer to the [`redirect/README.md`](https://github.com/ring0networks/dome/blob/master/redirect/README.md).
-
 
 ### Field Descriptions
 
@@ -128,7 +143,8 @@ ring-0 d0me sends event messages to a local [Telegraf](https://github.com/influx
 
 ## Contributing
 
-Contributions are welcome! Please submit issues or pull requests via [GitHub](https://github.com/ring0networks/dome).
+Contributions are welcome!
+Please submit issues or pull requests via [GitHub](https://github.com/ring0networks/dome).
 
 ## License
 
@@ -137,5 +153,3 @@ ring-0 d0me is licensed under the GPL-2.0. See the `LICENSE` file for more detai
 ---
 
 For more information, visit the [project repository](https://github.com/ring0networks/dome).
-
-
