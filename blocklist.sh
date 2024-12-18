@@ -4,7 +4,7 @@
 
 url="https://blocklistproject.github.io/Lists/alt-version"
 dir="blocklist"
-lists="abuse ads basic crypto drugs everything facebook fortnite fraud\
+lists="abuse ads basic crypto drugs facebook fortnite fraud\
 	gambling malware phishing piracy porn ransomware redirect scam\
 	scam-tv tiktok torrent tracking twitter vaping whatsapp youtube"
 
