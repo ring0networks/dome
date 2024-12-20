@@ -1,0 +1,10 @@
+return {
+	host = "127.0.0.1",
+	port = "5433",
+	database = "startui",
+	user = "startui",
+	password = "startui",
+	interval = 60
+}
+
+-- vim:ft=lua:

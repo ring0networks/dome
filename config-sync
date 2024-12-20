@@ -1,0 +1,126 @@
+#!/usr/bin/env lua
+-- SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+-- SPDX-License-Identifier: GPL-2.0-only
+--
+-- This script synchronizes block and allow lists from a PostgreSQL database
+-- and generates a config.lua file based on the user-defined settings from the
+-- admin interface.
+--
+-- Install dependencies:
+--   sudo apt install libssl-dev
+--   for p in argparse pgmoon luaossl luasec luaposix serpent; do
+--      sudo luarocks install $p
+--   done
+--
+-- Configuration:
+--   Copy domerc.example to $HOME/.domerc and edit it as needed.
+--
+-- Example usage:
+--   LIB=/lib/modules/lua/dome ./config-sync -v --output $LIB/config.lua $LIB
+
+local posix    = require("posix")
+local argparse = require("argparse")
+local pgmoon   = require("pgmoon")
+local serpent  = require("serpent")
+
+local argparser = argparse(arg[0], "Dome blocklist fetcher for PostgreSQL")
+argparser:flag("-v --verbose", "Enable verbose messages.")
+argparser:flag("-d --daemon", "Run in daemon mode, executing every 'domerc.interval' seconds.")
+argparser:option("-o --output", "Update config.lua with the fetched information.")
+argparser:argument("directory", "Directory where the custom lists wil be written.")
+local args = argparser:parse()
+
+local home = os.getenv("HOME")
+local rc   = dofile(home .. "/.domerc")
+local db   = pgmoon.new{
+	host     = rc.host,
+	port     = tostring(rc.port),
+	database = rc.database,
+	user     = rc.user,
+	password = rc.password
+}
+
+local function log(fmt, ...)
+	if args.verbose then
+		print(string.format(fmt, ...))
+	end
+end
+
+local function query(db, query, callback)
+	assert(db:connect())
+	local res = assert(db:query(query))
+	for _, row in ipairs(res) do
+		callback(row)
+	end
+	db:disconnect()
+end
+
+local function write_list(path, domains)
+	local file = io.open(path, "w")
+	file:write("return {\n")
+	for domain in string.gmatch(domains, "[^\n]*") do
+		domain = domain:gsub("^%s*(.-)%s*$", "%1") -- trim
+		if #domain > 0 then
+			file:write(string.format("\t[\"%s\"]=true,\n", domain))
+		end
+	end
+	file:write("}\n")
+	file:close()
+end
+
+local function download_custom(db, dir)
+	query(db, 'SELECT * FROM "PolicyCategory" WHERE custom = true;', function (row)
+		if row.domains and #row.domains > 0 then
+			local path = dir .. "/" .. string.lower(row.name) .. ".lua"
+			write_list(path, row.domains)
+			log("wrote: %s", path)
+		end
+	end)
+end
+
+local function fetch_config(db, output)
+	local config = dofile(output)
+	log("loaded: %s", output)
+	config.blocklists = {}
+	config.allowlists = {}
+	query(db, 'select * from "PolicyCategory";', function (row)
+		local name = row.custom and string.lower(row.name) or row.basename
+		name = string.gsub(name, "%s", "_")
+		log("+ %s: %s", name, row.blocked and "block" or "allow")
+		if row.blocked then
+			table.insert(config.blocklists, name)
+		else
+			table.insert(config.allowlists, name)
+		end
+	end)
+	return config
+end
+
+local function write_config(db, output)
+	local config = fetch_config(db, output)
+	local module = "return " .. serpent.block(config, {comment = false})
+	local file = io.open(output, "w")
+	file:write(module)
+	file:close()
+end
+
+local function update_config(db, args)
+	download_custom(db, args.directory)
+	if args.output then
+		write_config(db, args.output)
+	end
+end
+
+posix.signal(posix.SIGINT, function (_)
+	print("\nInterrupted.")
+	os.exit(0)
+end)
+posix.mkdir(args.directory)
+if args.daemon then
+	while true do
+		update_config(db, args)
+		posix.unistd.sleep(tonumber(rc.interval) or 150)
+	end
+else
+	update_config(db, args)
+end
