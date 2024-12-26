@@ -79,25 +79,54 @@ local function match(lists, domain, action)
 	end
 end
 
-local function filter(packet, offset, dport, allow, deny, outbox)
+local function mac_ntoa(mac)
+	local ret = {}
+	for i = 1, 6 do
+		table.insert(ret, string.format("%02x", string.byte(mac, i)))
+	end
+	return table.concat(ret, ":")
+end
+
+local function inet_ntoa(addr)
+	return string.format("%d.%d.%d.%d",
+		addr & 0xFF,
+		(addr >>  8) & 0xFF,
+		(addr >> 16) & 0xFF,
+		(addr >> 24) & 0xFF)
+end
+
+local function encode(message)
+	local result = {}
+	for key, value in pairs(message) do
+		table.insert(result, tostring(key) .. "=\"" .. tostring(value) .. "\"")
+	end
+	return table.concat(result, ",")
+end
+
+local function filter(packet, offset, headers, allow, deny, outbox)
 	local policy = config.policy == "allow" and allow or deny
 	local verdict = {reason = "default", action = policy}
 
-	local parser = parsers[dport]
+	local parser = parsers[headers.dport]
 	if not parser then
-		log("filter was not found (dport = %d)", dport)
+		log("filter was not found (dport = %d)", headers.dport)
 	else
-		local domain  = parser(packet, offset)
+		local domain = parser(packet, offset)
 		if domain then
 			verdict = match(allowlists, domain, allow) or
 				match(blocklists, domain, deny) or verdict
-
-			local message = format('domain="%s",dport="%d",action="%s",reason="%s"',
-				domain, dport, hook.action_name[verdict.action], verdict.reason)
-			outbox.notify(message)
-
+			outbox.notify(encode{
+				domain = domain,
+				smac = mac_ntoa(headers.smac),
+				saddr = inet_ntoa(headers.saddr),
+				daddr = inet_ntoa(headers.daddr),
+				sport = headers.sport,
+				dport = headers.dport,
+				action = hook.action_name[verdict.action],
+				reason = verdict.reason
+			})
 			if verdict.action == deny then
-				outbox.reply(reply[dport] .. "|" .. tostring(packet))
+				outbox.reply(reply[headers.dport] .. "|" .. tostring(packet))
 			end
 		end
 	end

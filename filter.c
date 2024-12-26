@@ -16,8 +16,11 @@ extern int bpf_luaxdp_run(char *key, size_t key__sz, struct xdp_md *xdp_ctx, voi
 static char runtime[] = "dome/filter";
 
 struct bpf_luaxdp_arg {
-	__u16 dport;
 	__u16 offset;
+	__be32 saddr;
+	__be32 daddr;
+	__u16 sport;
+	__u16 dport;
 	__u8 allow;
 } __attribute__((packed));
 
@@ -70,8 +73,11 @@ int filter(struct xdp_md *ctx)
 	if (payload > data_end)
 		goto allow;
 
-	arg.dport = dport;
 	arg.offset = (__u16)(payload - data);
+	arg.saddr = ip->saddr;
+	arg.daddr = ip->daddr;
+	arg.sport = bpf_ntohs(tcp->source);
+	arg.dport = dport;
 	arg.allow = DOME_ALLOW;
 
 	int action = bpf_luaxdp_run(runtime, sizeof(runtime), ctx, &arg, sizeof(arg));
