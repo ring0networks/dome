@@ -3,6 +3,7 @@
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
+local linux      = require("linux")
 local runner     = require("lunatik.runner")
 local thread     = require("thread")
 local inet       = require("socket.inet")
@@ -20,22 +21,28 @@ function telegraf:push(message)
 	self:sendto(message, inet.localhost, 8094)
 end
 
+local function handle()
+	local message = inbox:receive()
+	local header, body = message:match("^(%a*)|(.+)")
+	if header == "notify" then
+		telegraf:push(config.notify_header .. body)
+	elseif header == "reply" then
+		local what, frame = body:match('(%a*)|(.*)')
+		local packet = data.new(#frame)
+		packet:setstring(0, frame)
+		reply[what](packet)
+	else
+		error("invalid message: %s", message)
+	end
+end
+
 local function daemon()
 	print("[ring-0/dome] started")
 	while (not shouldstop()) do
-		local ok, message = pcall(inbox.receive, inbox)
-		if not ok then break end
-
-		local header, body = message:match("^(%a*)|(.+)")
-		if header == "notify" then
-			telegraf:push(config.notify_header .. body)
-		elseif header == "reply" then
-			local what, frame = body:match('(%a*)|(.*)')
-			local packet = data.new(#frame)
-			packet:setstring(0, frame)
-			reply[what](packet)
-		else
-			error("invalid message: %s", message)
+		local ok, err = pcall(handle)
+		if not ok then
+			print(string.format("[ring-0/dome] error: %s", err))
+			linux.schedule(100)
 		end
 	end
 	print("[ring-0/dome] stopped")
