@@ -35,6 +35,7 @@ install: config.lua blocklist
 	${MKDIR} ${INSTALL_PATH}
 	${INSTALL} -m 0644 *.lua ${INSTALL_PATH}/
 	${INSTALL} -m 0644 blocklist/*.lua ${INSTALL_PATH}/
+	${INSTALL} -m 0644 categories/*.lua ${INSTALL_PATH}/
 	${CP} ${DOME_MODULES} ${INSTALL_PATH}
 
 uninstall:
