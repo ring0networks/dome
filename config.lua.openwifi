@@ -1,0 +1,13 @@
+return {
+	filter = 'netfilter',
+	policy = 'allow',
+	iface = 'wlan0',
+	mailbox_max = 100 * 1024,
+	notify_header = 'http,host=openwifi.local,location=rj ',
+	redirect_url = 'https://www.ring0networks.com.br/en/blocked?',
+	allowlists = {'adult', 'gambling', 'games', 'jobs', 'music', 'shopping', 'streaming'},
+	blocklists = {'basic'},
+	netfilter = 'bridge',
+	deny_on_error = true,
+}
+
