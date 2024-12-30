@@ -30,7 +30,7 @@ local blocklists = loadlists(config.blocklists)
 local function hostname(packet, offset)
 	local str = unpacker(packet, offset)
 	local request = str(0)
-	return string.match(request, "Host:%s(.-)\r\n")
+	return string.match(request, "Host:%s*([%w%.%-]+).-\r\n")
 end
 
 local function sni(packet, offset)
