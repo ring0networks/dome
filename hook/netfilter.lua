@@ -5,13 +5,14 @@
 
 local linux     = require("linux")
 local netfilter = require("netfilter")
+local config    = require("dome/config")
 
 local ETH_HLEN    = 14
 local IPPROTO_TCP = 0x06
 
-local mod = {}
+local hook = {}
 
-mod.action = netfilter.action
+hook.action = netfilter.action
 
 local function parser(outbox, filter)
 	return function (packet)
@@ -29,21 +30,27 @@ local function parser(outbox, filter)
 		}
 
 		if offset >= #packet or proto ~= IPPROTO_TCP then
-			return mod.action.CONTINUE
+			return hook.action.CONTINUE
 		end
 
-		return filter(packet, offset, headers, mod.action.CONTINUE, mod.action.DROP, outbox)
+		return filter(packet, offset, headers, hook.action.CONTINUE, hook.action.DROP, outbox)
 	end
 end
 
-function mod.attach(outbox, filter)
-		netfilter.register{
-			pf = netfilter.family.INET,
-			hooknum = netfilter.inet_hooks.FORWARD,
-			priority = netfilter.ip_priority.LAST,
-			hook = parser(outbox, filter),
-		}
+function hook.attach(outbox, filter)
+	local handler = {hook = parser(outbox, filter)}
+	if config.netfilter == "bridge" then
+		handler.pf = netfilter.family.BRIDGE
+		handler.hooknum = netfilter.bridge_hooks.PRE_ROUTING
+		handler.priority = netfilter.bridge_priority.FIRST
+	else
+		handler.pf = netfilter.family.INET
+		handler.hooknum = netfilter.inet_hooks.FORWARD
+		handler.priority = netfilter.ip_priority.LAST
+	end
+
+	netfilter.register(handler)
 end
 
-return mod
+return hook
 
