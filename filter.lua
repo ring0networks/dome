@@ -72,11 +72,17 @@ local reply = {
 }
 
 local function match(lists, domain, action)
-	for reason, list in pairs(lists) do
-		if list[domain] then
-			return {reason = reason, action = action}
+	local i = 1
+	repeat
+		local subdomain = domain:sub(i)
+		i = select(2, domain:find("%.%w", i))
+
+		for reason, list in pairs(lists) do
+			if list[subdomain] then
+				return {reason = reason, action = action}
+			end
 		end
-	end
+	until not i
 end
 
 local function mac_ntoa(mac)
@@ -109,26 +115,34 @@ local function filter(packet, offset, headers, allow, deny, outbox)
 
 	local parser = parsers[headers.dport]
 	if not parser then
-		log("filter was not found (dport = %d)", headers.dport)
-	else
-		local domain = parser(packet, offset)
-		if domain then
-			verdict = match(allowlists, domain, allow) or
-				match(blocklists, domain, deny) or verdict
-			outbox.notify(encode{
-				domain = domain,
-				smac = mac_ntoa(headers.smac),
-				saddr = inet_ntoa(headers.saddr),
-				daddr = inet_ntoa(headers.daddr),
-				sport = headers.sport,
-				dport = headers.dport,
-				action = hook.action_name[verdict.action],
-				reason = verdict.reason
-			})
-			if verdict.action == deny then
-				outbox.reply(reply[headers.dport] .. "|" .. tostring(packet))
-			end
+		return allow
+	end
+
+	local ok, domain = pcall(parser, packet, offset)
+	if not ok then
+		domain = 'unknown'
+		verdict.reason = 'error'
+		verdict.action = config.deny_on_error and deny or allow
+	elseif domain then
+		verdict = match(allowlists, domain, allow) or
+		match(blocklists, domain, deny) or verdict
+	end
+
+	if domain then
+		if verdict.action == deny then
+			outbox.reply(reply[headers.dport] .. "|" .. tostring(packet))
 		end
+
+		outbox.notify(encode{
+			domain = domain,
+			smac = mac_ntoa(headers.smac),
+			saddr = inet_ntoa(headers.saddr),
+			daddr = inet_ntoa(headers.daddr),
+			sport = headers.sport,
+			dport = headers.dport,
+			action = hook.action_name[verdict.action],
+			reason = verdict.reason
+		})
 	end
 
 	return verdict.action
