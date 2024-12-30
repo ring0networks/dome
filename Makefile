@@ -41,15 +41,6 @@ install: config.lua blocklist
 uninstall:
 	${RM} -r ${INSTALL_PATH}
 
-run: install ${EBPF_FILTERS_OBJS}
-	lunatik reload
-	xdp-loader load -m skb luaxdp0 ${EBPF_FILTERS_OBJS}
-	lunatik spawn dome/daemon
-
-stop:
-	xdp-loader unload --all luaxdp0
-	lunatik stop dome/daemon
-
 namespace:
 	./namespace.sh
 
