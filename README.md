@@ -37,9 +37,15 @@ cd dome
 
 ## Basic Usage
 
-To run the `dome` project in Router Mode using a virtual interface, follow these steps:
+1. **Install:**
 
-1. **Set up the network namespace and virtual interface:**
+   ```bash
+   make install
+   ```
+
+2. *(optional)* **Set up a network namespace:**
+
+   To run the `dome` *Router Mode* using a *virtual interface*, follow these steps:
 
    ```bash
    make namespace
@@ -47,18 +53,18 @@ To run the `dome` project in Router Mode using a virtual interface, follow these
 
    This step executes the `namespace.sh` script to create the necessary network namespace and virtual interface.
 
-2. **Run the project:**
+3. **Run the project:**
 
    ```bash
-   make run
+   ./dome.sh start
    ```
 
    This starts the `dome` project in Router Mode, utilizing the virtual interface created in the previous step.
 
-3. **Stop the project:**
+4. **Stop the project:**
 
    ```bash
-   make stop
+   ./dome.sh stop
    ```
 
    This stops the running instance of `dome` and cleans up resources.
