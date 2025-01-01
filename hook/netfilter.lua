@@ -10,15 +10,20 @@ local config    = require("dome/config")
 local ETH_HLEN    = 14
 local IPPROTO_TCP = 0x06
 
-local hook = {}
+local action = netfilter.action
 
-hook.action = netfilter.action
+local hook = {action = action}
 
 local function parser(outbox, filter)
 	return function (packet)
 		local ihl = packet:getbyte(ETH_HLEN) & 0x0F
 		local thoff = ihl * 4
 		local proto = packet:getbyte(ETH_HLEN + 9)
+
+		if proto ~= IPPROTO_TCP then
+			return action.CONTINUE
+		end
+
 		local doff = ((packet:getbyte(ETH_HLEN + thoff + 12) >> 4) & 0x0F) * 4
 		local offset = ETH_HLEN + thoff + doff
 		local headers = {
@@ -29,11 +34,8 @@ local function parser(outbox, filter)
 			dport = linux.ntoh16(packet:getuint16(ETH_HLEN + thoff + 2))
 		}
 
-		if offset >= #packet or proto ~= IPPROTO_TCP then
-			return hook.action.CONTINUE
-		end
-
-		return filter(packet, offset, headers, hook.action.CONTINUE, hook.action.DROP, outbox)
+		return offset >= #packet and action.CONTINUE or
+			filter(packet, offset, headers, action.CONTINUE, action.DROP, outbox)
 	end
 end
 
