@@ -1,4 +1,6 @@
 #!/bin/sh
+# SPDX-FileCopyrightText: (c) 2024-2025 Ring Zero Desenvolvimento de Software LTDA
+# SPDX-License-Identifier: GPL-2.0-only
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]
 then
@@ -6,27 +8,29 @@ then
     exit 1
 fi
 
+DOME_HOME="$(dirname $0)"
+
 DOME_PREFIX=/lib/modules/lua/dome
 
-if [ ! -e $DOME_PREFIX ]
+if [ ! -e "$DOME_PREFIX" ]
 then
     printf "dome is not installed.\n" >&2
     exit 2
 fi
 
-DOME_CONFIG=$DOME_PREFIX/config.lua
+DOME_CONFIG="$DOME_PREFIX/config.lua"
 
-DOME_FILTER=$(awk -F\" '/filter\s*=\s*"(.+)"/ {print $2}' $DOME_CONFIG)
+DOME_FILTER=$(cd $DOME_PREFIX && lua -e "config = require('config') print(config.filter)")
 
-DOME_IFACE=$(awk -F\" '/iface\s*=\s*"(.+)"/ {print $2}' $DOME_CONFIG)
+DOME_IFACE=$(cd $DOME_PREFIX && lua -e "config = require('config') print(config.iface)")
 
 [ -n "$2" ] && DOME_MODE="_$2"
 
 dome_start() {
-    lunatik status | grep -q 'is not loaded' &&
+    sudo lunatik status | grep -q 'is not loaded' &&
         sudo lunatik load
     [ "$DOME_FILTER" = "xdp" ] &&
-        sudo xdp-loader load -m skb $DOME_IFACE filter$DOME_MODE.o
+        sudo xdp-loader load -m skb $DOME_IFACE "$DOME_HOME/filter$DOME_MODE.o"
     sudo lunatik spawn dome/daemon > /dev/null
 }
 
