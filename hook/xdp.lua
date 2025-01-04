@@ -10,19 +10,21 @@ local mod = {}
 mod.action = xdp.action
 
 local function argparse(argument)
-	return argument:getuint16(0),
-	argument:getuint32(2),
-	argument:getuint32(6),
-	argument:getuint16(10),
-	argument:getuint16(12),
-	argument:getuint8(14)
+	return argument:getuint16(0),       -- offset
+		argument:getuint8(2),       -- version
+		argument:getstring(3, 16),  -- saddr
+		argument:getstring(19, 16), -- daddr
+		argument:getuint16(35),     -- sport
+		argument:getuint16(37),     -- dport
+		argument:getuint8(39)       -- allow
 end
 
 local function parser(outbox, filter)
 	return function (packet, argument)
-		local offset, saddr, daddr, sport, dport, allow = argparse(argument)
+		local offset, version, saddr, daddr, sport, dport, allow = argparse(argument)
 		local smac = packet:getstring(6, 6)
 		return filter(packet, offset, {
+			version = version,
 			smac = smac,
 			saddr = saddr,
 			daddr = daddr,

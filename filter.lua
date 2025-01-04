@@ -95,10 +95,18 @@ end
 
 local function inet_ntoa(addr)
 	return string.format("%d.%d.%d.%d",
-		addr & 0xFF,
-		(addr >>  8) & 0xFF,
-		(addr >> 16) & 0xFF,
-		(addr >> 24) & 0xFF)
+		addr:byte(4),
+		addr:byte(3),
+		addr:byte(2),
+		addr:byte(1))
+end
+
+local function inet6_ntoa(addr)
+        local t = {}
+        for i = 1, 16, 2 do
+                table.insert(t, string.format("%02x%02x", addr:byte(i), addr:byte(i+1)))
+        end
+        return table.concat(t, ":"):gsub("(:0000)", ":"):gsub("^0+", ""):gsub("::$", "")
 end
 
 local function encode(message)
@@ -136,8 +144,8 @@ local function filter(packet, offset, headers, allow, deny, outbox)
 		outbox.notify(encode{
 			domain = domain,
 			smac = mac_ntoa(headers.smac),
-			saddr = inet_ntoa(headers.saddr),
-			daddr = inet_ntoa(headers.daddr),
+			saddr = headers.version == 6 and inet6_ntoa(headers.saddr) or inet_ntoa(headers.saddr),
+			daddr = headers.version == 6 and inet6_ntoa(headers.daddr) or inet_ntoa(headers.daddr),
 			sport = headers.sport,
 			dport = headers.dport,
 			action = hook.action_name[verdict.action],

@@ -27,6 +27,7 @@ local function parser(outbox, filter)
 		local doff = ((packet:getbyte(ETH_HLEN + thoff + 12) >> 4) & 0x0F) * 4
 		local offset = ETH_HLEN + thoff + doff
 		local headers = {
+			version = 4, -- TODO support ipv6
 			smac = packet:getstring(6, 6),
 			saddr = packet:getuint32(ETH_HLEN + 12),
 			daddr = packet:getuint32(ETH_HLEN + 16),

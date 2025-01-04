@@ -17,8 +17,15 @@ static char runtime[] = "dome/filter";
 
 struct bpf_luaxdp_arg {
 	__u16 offset;
-	__be32 saddr;
-	__be32 daddr;
+	__u8 version;
+	union {
+		__be32 v4;
+		__u8   v6[16];
+	} saddr;
+	union {
+		__be32 v4;
+		__u8   v6[16];
+	} daddr;
 	__u16 sport;
 	__u16 dport;
 	__u8 allow;
@@ -51,6 +58,7 @@ int filter(struct xdp_md *ctx)
 	void *data = (void *)(long)ctx->data;
 	struct ethhdr *eth = data;
 	struct iphdr *ip = data + sizeof(struct ethhdr);
+	struct ipv6hdr *ip6 = (struct ipv6hdr *)ip;
 
 	if (eth + 1 > (struct ethhdr *)data_end)
 		return XDP_DROP;
@@ -61,7 +69,7 @@ int filter(struct xdp_md *ctx)
 	if (ip->protocol != IPPROTO_TCP)
 		goto allow;
 
-	struct tcphdr *tcp = (void *)ip + (ip->ihl * 4);
+	struct tcphdr *tcp = (void *)ip + (ip->version == 6 ? 40 : ip->ihl * 4);
 	if (tcp + 1 > (struct tcphdr *)data_end)
 		goto allow;
 
@@ -74,8 +82,19 @@ int filter(struct xdp_md *ctx)
 		goto allow;
 
 	arg.offset = (__u16)(payload - data);
-	arg.saddr = ip->saddr;
-	arg.daddr = ip->daddr;
+	arg.version = ip->version;
+	switch (ip->version) {
+	case 4:
+		arg.saddr.v4 = ip->saddr;
+		arg.daddr.v4 = ip->daddr;
+		break;
+	case 6:
+		if (ip6 + 1 > (struct ipv6hdr *)data_end)
+			goto allow;
+		memcpy(arg.saddr.v6, &ip6->saddr, 16);
+		memcpy(arg.daddr.v6, &ip6->daddr, 16);
+		break;
+	}
 	arg.sport = bpf_ntohs(tcp->source);
 	arg.dport = dport;
 	arg.allow = DOME_ALLOW;
