@@ -1,5 +1,5 @@
 --
--- SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+-- SPDX-FileCopyrightText: (c) 2024-2025 Ring Zero Desenvolvimento de Software LTDA
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
@@ -33,7 +33,33 @@ local function hostname(packet, offset)
 	return string.match(request, "Host:%s*([%w%.%-]+).-\r\n")
 end
 
-local function sni(packet, offset)
+local sni = {pending = {}}
+
+function sni.segment(packet, offset)
+	local str, u8, be16 = unpacker(packet, offset)
+
+	local server_name = 0x0000
+	local host_name   = 0x00
+
+	local last = #packet - offset - 1 - 10
+	for i = 0, last do
+		local extension_type   = be16(i)
+		local server_name_type = u8(i + 6)
+
+		if extension_type == server_name and server_name_type == host_name then
+			local extension_len        = be16(i + 2)
+			local server_name_list_len = be16(i + 4)
+			local server_name_len      = be16(i + 7)
+
+			if extension_len == server_name_list_len + 2 and
+			   extension_len == server_name_len + 5 then
+				return str(i + 9, server_name_len)
+			end
+		end
+	end
+end
+
+function sni.parser(packet, offset, headers)
 	local str, u8, be16 = unpacker(packet, offset)
 
 	local client_hello = 0x01
@@ -43,9 +69,18 @@ local function sni(packet, offset)
 	local session = 43
 	local max_extensions = 17
 
+	local conn = string.format("%X:%X:%X", headers.saddr, headers.daddr, headers.sport)
+	local pending = sni.pending
+	if pending[conn] then
+		pending[conn] = nil
+		return sni.segment(packet, offset)
+	end
+
 	if u8(0) ~= handshake or u8(5) ~= client_hello then
 		return
 	end
+
+	pending[conn] = true
 
 	local cipher = (session + 1) + u8(session)
 	local compression = cipher + 2 + be16(cipher)
@@ -55,15 +90,19 @@ local function sni(packet, offset)
 		local data = extension + 4
 		if be16(extension) == server_name then
 			local length = be16(data + 3)
+			pending[conn] = nil
 			return str(data + 5, length)
 		end
 		extension = data + be16(extension + 2)
 	end
+
+	pending[conn] = nil
+	return "unknown"
 end
 
 local parsers = {
 	[ 80] = hostname,
-	[443] = sni,
+	[443] = sni.parser,
 }
 
 local reply = {
@@ -118,7 +157,7 @@ local function filter(packet, offset, headers, allow, deny, outbox)
 		return allow
 	end
 
-	local ok, domain = pcall(parser, packet, offset)
+	local ok, domain = pcall(parser, packet, offset, headers)
 	if not ok then
 		domain = 'unknown'
 		verdict.reason = 'error'
