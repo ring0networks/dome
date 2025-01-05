@@ -8,6 +8,6 @@ return {
 	allowlists = {'adult', 'gambling', 'games', 'jobs', 'music', 'shopping', 'streaming'},
 	blocklists = {'example'},
 	netfilter = 'bridge', -- bridge/router
-	deny_on_error = true,
+	deny_on_error = false,
 }
 
