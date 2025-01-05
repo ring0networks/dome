@@ -1,5 +1,5 @@
 --
--- SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+-- SPDX-FileCopyrightText: (c) 2024-2025 Ring Zero Desenvolvimento de Software LTDA
 -- SPDX-License-Identifier: GPL-2.0-only
 --
 
@@ -41,7 +41,6 @@ local function daemon()
 	while (not shouldstop()) do
 		local ok, err = pcall(handle)
 		if not ok then
-			print(string.format("[ring-0/dome] error: %s", err))
 			linux.schedule(100)
 		end
 	end
