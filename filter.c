@@ -1,11 +1,13 @@
 /*
-* SPDX-FileCopyrightText: (c) 2024 Ring Zero Desenvolvimento de Software LTDA
+* SPDX-FileCopyrightText: (c) 2024-2025 Ring Zero Desenvolvimento de Software LTDA
 * SPDX-License-Identifier: GPL-2.0-only
 */
 
 #include "vmlinux.h"
 #include <bpf/bpf_helpers.h>
 #include <bpf/bpf_endian.h>
+
+#define SNI_MIN 10
 
 #define ETH_ALEN 6
 
@@ -65,12 +67,13 @@ int filter(struct xdp_md *ctx)
 	if (tcp + 1 > (struct tcphdr *)data_end)
 		goto allow;
 
-	__u16 dport = bpf_ntohs(tcp->dest);
-	if ((dport != 80 && dport != 443) || !tcp->psh)
-		goto allow;
-
 	void *payload = (void *)tcp + (tcp->doff * 4);
 	if (payload > data_end)
+		goto allow;
+
+	__u16 dport = bpf_ntohs(tcp->dest);
+	ptrdiff_t payload_len = data_end - payload;
+	if ((dport != 80 && dport != 443) || payload_len < SNI_MIN)
 		goto allow;
 
 	arg.offset = (__u16)(payload - data);
