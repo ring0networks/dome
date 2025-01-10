@@ -27,6 +27,7 @@ DOME_IFACE=$(cd $DOME_PREFIX && lua -e "config = require('config') print(config.
 [ -n "$2" ] && DOME_MODE="_$2"
 
 dome_start() {
+    sudo ip link set $DOME_IFACE promisc on
     sudo lunatik status | grep -q 'is not loaded' &&
         sudo lunatik load
     [ "$DOME_FILTER" = "xdp" ] &&
