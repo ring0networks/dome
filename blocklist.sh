@@ -14,15 +14,6 @@ for name in ${lists}; do
 	list="${dir}/${file}"
 	printf "downloading ${file}\n"
 	curl -# "${url}/${file}" -o ${list}
-	script="${dir}/${name}.lua"
-	echo "return {" > ${script}
-	grep -Ev '^.{64}|[^a-zA-Z0-9.-]' ${list} |\
-		sed "s/\([a-zA-Z0-9.-]*\)/\[\"\1\"\]=true,/g" >> ${script}
-	echo "}" >> ${script}
-	rm ${list}
+	lua blocklist.lua ${name}
 done
 
-# create example blocklist for dev purposes
-echo "return {
-[\"hostname.com\"]=true,
-}" > ${dir}/example.lua
