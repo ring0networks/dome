@@ -6,7 +6,7 @@ return {
 	notify_header = 'http,host=ring-0.io,location=rj ',
 	redirect_url = 'https://ring0networks.github.io/block.html',
 	allowlists = {'adult', 'gambling', 'games', 'jobs', 'music', 'shopping', 'streaming'},
-	blocklists = {'example'},
+	blocklists = {'ads', 'basic'},
 	netfilter = 'bridge', -- bridge/router
 	deny_on_error = false,
 }
